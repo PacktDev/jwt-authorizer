@@ -4,10 +4,11 @@ module.exports = (gPerms) => {
     .map(key => ({ key, service: gPerms[key] }))
     .forEach((item) => {
       const keys = Object.keys(item.service);
-      const serviceNum = item.service.service;
-
-      if (serviceNum === undefined) {
-        throw new Error(`Service [${item.key}] has no service index`);
+      let serviceNum;
+      try {
+        serviceNum = parseInt(item.service.service, 10);
+      } catch (err) {
+        throw new Error(`Service [${item.key}] has no numeric service index`);
       }
 
       if (serviceNum >= Object.keys(gPerms).length) {
