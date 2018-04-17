@@ -4,15 +4,18 @@
   "description": "Module to manage JWT claims-based authentication with permissions.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run unit",
+    "unit": "./node_modules/mocha/bin/_mocha -- tests/*.js"
   },
   "author": "Chris Key",
   "license": "ISC",
   "devDependencies": {
+    "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.11.0"
+    "eslint-plugin-import": "^2.11.0",
+    "mocha": "^5.1.0"
   },
   "dependencies": {
     "jsonwebtoken": "^8.2.1"
