@@ -1,6 +1,7 @@
 /* eslint no-bitwise: "off" */
 
 const jwt = require('jsonwebtoken');
+const jsonVerify = require('./src/json-verify');
 
 class PermissionManager {
   /**
@@ -14,6 +15,8 @@ class PermissionManager {
     }
 
     this.gPerms = JSON.parse(globalJSON);
+    jsonVerify(this.gPerms);
+
     // always initialise to length of full permissions array
     this.perms = new Uint8Array(Object.keys(this.gPerms).length);
 
@@ -29,25 +32,25 @@ class PermissionManager {
   /**
    * Adds a permimssion into the internal permission object
    *
-   * @param  {number} service Index of the service in the global permissions object
+   * @param  {number} serviceIndex Index of the service in the global permissions object
    * @param  {number} perm Value of the permission to add
    */
-  addPermission(service, perm) {
-    if (service >= this.perms.length) {
+  addPermission(serviceIndex, perm) {
+    if (serviceIndex >= this.perms.length) {
       throw new Error('Service doesn\'t match global permissions object');
     }
-    this.perms[service] |= perm;
+    this.perms[serviceIndex] |= perm;
   }
 
   /**
-   * @param  {number} service Index of the service in the global permissions object
+   * @param  {number} serviceIndex Index of the service in the global permissions object
    * @param  {number} perm Value of the permission to remove
    */
-  removePermission(service, perm) {
-    if (service >= this.perms.length) {
+  removePermission(serviceIndex, perm) {
+    if (serviceIndex >= this.perms.length) {
       throw new Error('Service doesn\'t match global permissions object');
     }
-    this.perms[service] &= ~perm;
+    this.perms[serviceIndex] &= ~perm;
   }
   /**
    * Returns a base64 version of the permissions array to be stored in a JWT
