@@ -1,5 +1,6 @@
 /* eslint-env node, mocha */
 /* eslint-disable no-new */
+/* eslint-disable no-unused-expressions */
 
 const JwtAuthorizer = require('../index');
 const chai = require('chai'); // eslint-disable-line
@@ -18,7 +19,7 @@ const setup = () => {
   perm.addPermission(gPerms.credits.service, gPerms.credits.giveOne);
   perm.addPermission(gPerms.credits.service, gPerms.credits.giveMany);
   perm.addPermission(gPerms.videoCaptions.service, gPerms.videoCaptions.canUpload);
-  perm.addPermission(gPerms.users.service, gPerms.users.canView);
+  perm.addPermission(gPerms.users.service, gPerms.users.view);
   return perm;
 };
 
@@ -40,6 +41,11 @@ describe('Permission Tests', () => {
 
   it('Has done something', () => {
     expect(perm.toString()).to.be.a('string');
+    expect(perm.listPermissions()).to.be.an('array').that.is.not.empty;
+  });
+
+  it('Has 8 permissions', () => {
+    expect(perm.listPermissions()).to.have.lengthOf(8);
   });
 
   it('Has auth.access', () => {

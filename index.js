@@ -15,7 +15,6 @@ class PermissionManager {
     }
 
     this.gPerms = JSON.parse(globalJSON);
-
     jsonVerify(this.gPerms);
 
     // always initialise to length of full permissions array
@@ -70,20 +69,21 @@ class PermissionManager {
   listPermissions() {
     const ownedPerms = [];
     Object.keys(this.gPerms)
-      .map(key => ({ key, service: this.gPerms[key] }))
-      .forEach((item) => {
-        const serviceName = item.key;
-        const servicePermissions = Object.keys(item.service);
+      .map((serviceName) => {
+        const service = this.gPerms[serviceName];
+        const servicePermissions = Object.keys(this.gPerms[serviceName]);
 
         for (let i = 0; i < servicePermissions.length; i += 1) {
           const servicePermission = servicePermissions[i];
-          const value = item.service[servicePermissions[i]];
+          const value = service[servicePermissions[i]];
           if (servicePermission !== 'service') {
-            if ((this.perms[item.service.service] & value) === value) {
+            if ((this.perms[service.service] & value) === value) {
               ownedPerms.push(`[${serviceName}].[${servicePermission}]`);
             }
           }
         }
+
+        return service;
       });
     return ownedPerms;
   }
