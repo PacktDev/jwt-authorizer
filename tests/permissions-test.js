@@ -29,7 +29,7 @@ const badConstructor = () => {
 
 describe('Constructor', () => {
   it('Fail for service error', () => {
-    expect(badConstructor).to.throw(new Error('Service [auth] has no numeric service index'));
+    expect(badConstructor).to.throw('Service [auth] has no numeric service index');
   });
 });
 
