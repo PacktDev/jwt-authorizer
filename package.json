@@ -4,12 +4,15 @@
   "description": "Module to manage JWT claims-based authentication with permissions.",
   "main": "index.js",
   "scripts": {
-    "test": "npm run unit",
-    "unit": "./node_modules/mocha/bin/_mocha -- tests/*.js"
+    "test": "npm run lint && npm run unit",
+    "lint": "eslint {./src/*.js\\,./src/models/*.js} --fix",
+    "unit": "babel-node ./node_modules/mocha/bin/mocha -- tests/*.js"
   },
   "author": "Chris Key",
   "license": "ISC",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-istanbul": "^0.12.2",
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",

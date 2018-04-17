@@ -15,6 +15,7 @@ class PermissionManager {
     }
 
     this.gPerms = JSON.parse(globalJSON);
+
     jsonVerify(this.gPerms);
 
     // always initialise to length of full permissions array
@@ -86,17 +87,31 @@ class PermissionManager {
       });
     return ownedPerms;
   }
+
+  /**
+   * Checks the permission is included in the current permissions object
+   * @param  {number} serviceIndex
+   * @param  {number} permission
+   *
+   * @returns {boolean} Whether the permission is included
+   */
+  checkPermission(serviceIndex, permission) {
+    return (this.perms[serviceIndex] & permission) === permission;
+  }
+
   /**
    * Checks the permission is included in the supplied encoded permissions object
    *
    * @param  {string} encodedPermissions Base64 encoded permission array
-   * @param  {number} service Index of the service in the global permissions object
+   * @param  {number} serviceIndex Index of the service in the global permissions object
    * @param  {number} permission Value of the permission to check
+   *
+   * @returns {boolean} Whether the permission is included
    */
-  static checkPermissions(encodedPermissions, service, permission) {
+  static checkPermission(encodedPermissions, serviceIndex, permission) {
     const jwtPermissions = new Uint8Array(Buffer.from(encodedPermissions, 'base64'));
 
-    return (jwtPermissions[service] & permission) === permission;
+    return (jwtPermissions[serviceIndex] & permission) === permission;
   }
 }
 
