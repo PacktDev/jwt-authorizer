@@ -29,20 +29,35 @@ class PermissionManager {
   /**
    * Adds a permimssion into the internal permission object
    *
-   * @param  {} service The index of the service to add the permission for
-   * @param  {} perm The permission value to add
+   * @param  {number} service Index of the service in the global permissions object
+   * @param  {number} perm Value of the permission to add
    */
   addPermission(service, perm) {
+    if (service >= this.perms.length) {
+      throw new Error('Service doesn\'t match global permissions object');
+    }
     this.perms[service] |= perm;
   }
 
+  /**
+   * @param  {number} service Index of the service in the global permissions object
+   * @param  {number} perm Value of the permission to remove
+   */
   removePermission(service, perm) {
+    if (service >= this.perms.length) {
+      throw new Error('Service doesn\'t match global permissions object');
+    }
     this.perms[service] &= ~perm;
   }
-
+  /**
+   * Returns a base64 version of the permissions array to be stored in a JWT
+   *
+   * @returns {string} Base64 encoded version of the array
+   */
   toString() {
     return Buffer.from(this.perms).toString('base64');
   }
+
   /**
    * Returns an array of permissions set for the current object
    *
@@ -68,7 +83,13 @@ class PermissionManager {
       });
     return ownedPerms;
   }
-
+  /**
+   * Checks the permission is included in the supplied encoded permissions object
+   *
+   * @param  {string} encodedPermissions Base64 encoded permission array
+   * @param  {number} service Index of the service in the global permissions object
+   * @param  {number} permission Value of the permission to check
+   */
   static checkPermissions(encodedPermissions, service, permission) {
     const jwtPermissions = new Uint8Array(Buffer.from(encodedPermissions, 'base64'));
 
