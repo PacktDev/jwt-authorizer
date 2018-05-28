@@ -97,22 +97,39 @@ class PermissionManager {
   }
 }
 
-class JwtAuthorizer {
-  constructor(accessToken, publicKey) {
-    this.accessToken = accessToken;
+class AuthHelper {
+  /**
+   * Instantiates the helper object with raw information needed.
+   * @param {string} rawJwt Raw Authorization header, incliuding Bearer.
+   * @param {string} publicKey Public key to verify signature of the JWT.
+   */
+  constructor(rawJwt, publicKey) {
+    this.rawJwt = rawJwt;
     this.publicKey = publicKey;
   }
 
-  verifyDecode() {
-    if (jwt.verify(this.accessToken, this.publicKey)) {
-      return jwt.decode(this.accessToken);
-    }
+  /**
+   * Validates the JWT for structure and signature.
+   * 
+   * @returns {Promise<string>} Promise which resolves to the userId.
+   */
+  processJwt() {
 
-    throw Error('Invalid token');
+  }
+
+  /**
+   * Checks whether the user has the required permission.
+   * 
+   * @param {string} permissionClass The class or service.
+   * @param {string} permission The permission.
+   * @returns {Promise<boolean>} Promise which resolves to true or false.
+   */
+  userCan(permissionClass, permission) {
+
   }
 }
 
 module.exports = {
   PermissionManager,
-  JwtAuthorizer,
+  AuthHelper,
 };
