@@ -103,6 +103,9 @@ class AuthHelper {
    * @param {string} rawJwt Raw Authorization header, incliuding Bearer.
    * @param {string} publicKey Public key to verify signature of the JWT.
    * @param {object} globalPerms Object representing the permission structure.
+   * @param {object} service Service from global permissions object.
+   * @param {object} masqueradePermission Permission from global permissions in
+   * service that allows a user to retrieve another user's details.
    */
   constructor(rawJwt, publicKey, service, masqueradePermission) {
     this.rawJwt = rawJwt;
