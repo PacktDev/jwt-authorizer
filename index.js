@@ -1,6 +1,6 @@
 /* eslint no-bitwise: "off" */
 
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 class PermissionManager {
   /**
@@ -102,30 +102,51 @@ class AuthHelper {
    * Instantiates the helper object with raw information needed.
    * @param {string} rawJwt Raw Authorization header, incliuding Bearer.
    * @param {string} publicKey Public key to verify signature of the JWT.
+   * @param {object} globalPerms Object representing the permission structure.
    */
-  constructor(rawJwt, publicKey) {
+  constructor(rawJwt, publicKey, service, masqueradePermission) {
     this.rawJwt = rawJwt;
     this.publicKey = publicKey;
+    this.service = service;
+    this.masqueradePermission = masqueradePermission;
   }
 
   /**
    * Validates the JWT for structure and signature.
-   * 
+   *
    * @returns {Promise<string>} Promise which resolves to the userId.
    */
-  processJwt() {
-
+  processJwt(userId) {
+    return new Promise((resolve, reject) => {
+      jwt.verify(this.rawJwt, this.publicKey, (err, decoded) => {
+        if (err) return reject(err);
+        if (decoded.permissions) this.permissions = decoded.permissions;
+        if (decoded.userId) {
+          if (userId === 'me' || !userId) return resolve(decoded.userId);
+          if (userId !== decoded.userId) {
+            return this.userCan(this.service, this.masqueradePermission)
+              .then((result) => {
+                if (result) return resolve(decoded.userId);
+                return reject(new Error('Mismatching userId'));
+              });
+          }
+        }
+        return reject(new Error('Unable to decode for userId'));
+      });
+    });
   }
 
   /**
    * Checks whether the user has the required permission.
-   * 
+   *
    * @param {string} permissionClass The class or service.
    * @param {string} permission The permission.
    * @returns {Promise<boolean>} Promise which resolves to true or false.
    */
   userCan(permissionClass, permission) {
-
+    if (!this.permissions) return Promise.resolve(false);
+    return Promise.Resolve(PermissionManager
+      .checkPermissions(this.permissions, permissionClass, permission));
   }
 }
 
