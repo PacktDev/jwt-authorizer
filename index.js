@@ -1,6 +1,7 @@
 /* eslint no-bitwise: "off" */
 
-import jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
+const jsonVerify = require('./src/json-verify');
 
 class PermissionManager {
   /**
@@ -14,6 +15,8 @@ class PermissionManager {
     }
 
     this.gPerms = JSON.parse(globalJSON);
+    jsonVerify(this.gPerms);
+
     // always initialise to length of full permissions array
     this.perms = new Uint8Array(Object.keys(this.gPerms).length);
 
@@ -29,25 +32,27 @@ class PermissionManager {
   /**
    * Adds a permimssion into the internal permission object
    *
-   * @param  {number} service Index of the service in the global permissions object
+   * @param  {number} serviceIndex Index of the service in the global permissions object
    * @param  {number} perm Value of the permission to add
    */
-  addPermission(service, perm) {
-    if (service >= this.perms.length) {
+  addPermission(serviceIndex, perm) {
+    if (serviceIndex >= this.perms.length) {
       throw new Error('Service doesn\'t match global permissions object');
     }
-    this.perms[service] |= perm;
+
+    this.perms[serviceIndex] |= perm;
   }
 
   /**
-   * @param  {number} service Index of the service in the global permissions object
+   * @param  {number} serviceIndex Index of the service in the global permissions object
    * @param  {number} perm Value of the permission to remove
    */
-  removePermission(service, perm) {
-    if (service >= this.perms.length) {
+  removePermission(serviceIndex, perm) {
+    if (serviceIndex >= this.perms.length) {
       throw new Error('Service doesn\'t match global permissions object');
     }
-    this.perms[service] &= ~perm;
+
+    this.perms[serviceIndex] &= ~perm;
   }
   /**
    * Returns a base64 version of the permissions array to be stored in a JWT
@@ -66,34 +71,55 @@ class PermissionManager {
   listPermissions() {
     const ownedPerms = [];
     Object.keys(this.gPerms)
-      .map(key => ({ key, service: this.gPerms[key] }))
-      .forEach((item) => {
-        const serviceName = item.key;
-        const servicePermissions = Object.keys(item.service);
+      .map((serviceName) => {
+        const service = this.gPerms[serviceName];
+        const servicePermissions = Object.keys(this.gPerms[serviceName]);
 
         for (let i = 0; i < servicePermissions.length; i += 1) {
           const servicePermission = servicePermissions[i];
-          const value = item.service[servicePermissions[i]];
+          const value = service[servicePermissions[i]];
           if (servicePermission !== 'service') {
-            if ((this.perms[item.service.service] & value) === value) {
+            if ((this.perms[service.service] & value) === value) {
               ownedPerms.push(`[${serviceName}].[${servicePermission}]`);
             }
           }
         }
+
+        return service;
       });
+
     return ownedPerms;
   }
+
+  /**
+   * Checks the permission is included in the current permissions object
+   * @param  {number} serviceIndex
+   * @param  {number} permission
+   *
+   * @returns {boolean} Whether the permission is included
+   */
+  checkPermission(serviceIndex, permission) {
+    return (this.perms[serviceIndex] & permission) === permission;
+  }
+
   /**
    * Checks the permission is included in the supplied encoded permissions object
    *
    * @param  {string} encodedPermissions Base64 encoded permission array
-   * @param  {number} service Index of the service in the global permissions object
+   * @param  {number} serviceIndex Index of the service in the global permissions object
    * @param  {number} permission Value of the permission to check
+   *
+   * @returns {boolean} Whether the permission is included
    */
-  static checkPermissions(encodedPermissions, service, permission) {
+  static checkPermissions(encodedPermissions, serviceIndex, permission) {
     const jwtPermissions = new Uint8Array(Buffer.from(encodedPermissions, 'base64'));
 
-    return (jwtPermissions[service] & permission) === permission;
+    console.log(`encodedPermissions::${JSON.stringify(encodedPermissions)}`);
+    console.log(`serviceIndex::${JSON.stringify(serviceIndex)}`);
+    console.log(`permission::${JSON.stringify(permission)}`);
+    console.log(`jwtPermissions[serviceIndex]::${JSON.stringify(jwtPermissions[serviceIndex])}`);
+
+    return (jwtPermissions[serviceIndex] & permission) === permission;
   }
 }
 
@@ -126,14 +152,13 @@ class AuthHelper {
         if (decoded.permissions) this.permissions = decoded.permissions;
         if (decoded.userId) {
           if (userId === 'me' || !userId) return resolve(decoded.userId);
-          if (userId !== decoded.userId) {
-            return this.userCan(this.service, this.masqueradePermission)
-              .then((result) => {
-                if (result) return resolve(decoded.userId);
-                return reject(new Error('Mismatching userId'));
-              });
-          }
+          return this.userCan(this.service, this.masqueradePermission)
+            .then((result) => {
+              if (result) return resolve(decoded.userId);
+              return reject(new Error('Mismatching userId'));
+            });
         }
+
         return reject(new Error('Unable to decode for userId'));
       });
     });
@@ -148,7 +173,7 @@ class AuthHelper {
    */
   userCan(permissionClass, permission) {
     if (!this.permissions) return Promise.resolve(false);
-    return Promise.Resolve(PermissionManager
+    return Promise.resolve(PermissionManager
       .checkPermissions(this.permissions, permissionClass, permission));
   }
 }
