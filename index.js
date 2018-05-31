@@ -114,11 +114,6 @@ class PermissionManager {
   static checkPermissions(encodedPermissions, serviceIndex, permission) {
     const jwtPermissions = new Uint8Array(Buffer.from(encodedPermissions, 'base64'));
 
-    console.log(`encodedPermissions::${JSON.stringify(encodedPermissions)}`);
-    console.log(`serviceIndex::${JSON.stringify(serviceIndex)}`);
-    console.log(`permission::${JSON.stringify(permission)}`);
-    console.log(`jwtPermissions[serviceIndex]::${JSON.stringify(jwtPermissions[serviceIndex])}`);
-
     return (jwtPermissions[serviceIndex] & permission) === permission;
   }
 }
@@ -151,7 +146,7 @@ class AuthHelper {
         if (err) return reject(err);
         if (decoded.permissions) this.permissions = decoded.permissions;
         if (decoded.userId) {
-          if (userId === 'me' || !userId) return resolve(decoded.userId);
+          if (userId === 'me' || userId === decoded.userId || !userId) return resolve(decoded.userId);
           return this.userCan(this.service, this.masqueradePermission)
             .then((result) => {
               if (result) return resolve(decoded.userId);

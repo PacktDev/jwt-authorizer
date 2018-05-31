@@ -25,11 +25,11 @@ module.exports = (gPerms) => {
         const value = service[keys[i]];
         if (permissionKey !== 'service') {
           if (Math.log2(value) !== parseInt(Math.log2(value), 10)) {
-            throw new Error(`Value [${value}] is not Base2`);
+            throw new Error(`Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] is not Base2`);
           }
 
           if (numbers.find(number => number === value)) {
-            throw new Error(`Value [${value}] exists twice`);
+            throw new Error(`Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] exists twice`);
           } else {
             numbers.push(value);
           }

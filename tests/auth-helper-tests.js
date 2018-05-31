@@ -73,6 +73,16 @@ describe('Auth Helper', () => {
       expect(auth.processJwt('me')).to.eventually.equal(payload.userId);
     });
 
+    it('Valid JWT decoded passed with same userId as signedJwt has userId returned', () => {
+      const auth = new AuthHelper(
+        validToken,
+        pubKey,
+        gPerms.auth.service,
+        gPerms.auth.canMasquerade,
+      );
+      expect(auth.processJwt(payload.userId)).to.eventually.equal(payload.userId);
+    });
+
     it('Valid JWT decoded passed with different userId and perm returns userId', () => {
       const auth = new AuthHelper(
         validToken,
@@ -85,7 +95,7 @@ describe('Auth Helper', () => {
       fakePerm.restore();
     });
 
-    it('Valid JWT decoded passed with different userId has userId returned', () => {
+    it('Valid JWT decoded passed with different userId has `Mismatching userId` returned', () => {
       const auth = new AuthHelper(
         validToken,
         pubKey,
@@ -98,7 +108,8 @@ describe('Auth Helper', () => {
     it('Valid JWT no userId throws error', () => {
       const auth = new AuthHelper(
         jwt.sign({}, privKey, { algorithm: 'RS256' }),
-        pubKey, gPerms.auth.service,
+        pubKey,
+        gPerms.auth.service,
         gPerms.auth.canMasquerade,
       );
       const verifyCall = auth.processJwt();
