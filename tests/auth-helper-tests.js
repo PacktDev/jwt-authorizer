@@ -13,26 +13,17 @@ import { AuthHelper, PermissionManager } from '../index';
 chai.use(chaiaspromised);
 
 const gPermsJSON = `{
-  "auth": {
+  "genin": {
     "service": 0,
     "access": 1,
-    "createRole": 2,
-    "assignPermToRole": 4,
-    "assignRoleToUser": 8
+    "stand": 2,
+    "wander": 4,
+    "stray": 8
   },
-  "credits": {
+  "chunin": {
     "service": 1,
     "giveOne": 1,
     "giveMany": 2
-  },
-  "videoCaptions": {
-    "service": 2,
-    "canUpload": 1
-  },
-  "users": {
-    "service": 3,
-    "view": 1,
-    "edit": 2
   }
 }`;
 const gPerms = JSON.parse(gPermsJSON);
@@ -57,8 +48,8 @@ describe('Auth Helper', () => {
       const auth = new AuthHelper(
         validToken,
         pubKey,
-        gPerms.auth.service,
-        gPerms.auth.canMasquerade,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
       );
       expect(auth.processJwt()).to.eventually.equal(payload.userId);
     });
@@ -67,8 +58,8 @@ describe('Auth Helper', () => {
       const auth = new AuthHelper(
         validToken,
         pubKey,
-        gPerms.auth.service,
-        gPerms.auth.canMasquerade,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
       );
       expect(auth.processJwt('me')).to.eventually.equal(payload.userId);
     });
@@ -77,8 +68,8 @@ describe('Auth Helper', () => {
       const auth = new AuthHelper(
         validToken,
         pubKey,
-        gPerms.auth.service,
-        gPerms.auth.canMasquerade,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
       );
       expect(auth.processJwt(payload.userId)).to.eventually.equal(payload.userId);
     });
@@ -87,11 +78,12 @@ describe('Auth Helper', () => {
       const auth = new AuthHelper(
         validToken,
         pubKey,
-        gPerms.auth.service,
-        gPerms.auth.canMasquerade,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
       );
       const fakePerm = sinon.stub(auth, 'userCan').resolves(true);
-      expect(auth.processJwt('differentUser')).to.eventually.equal(payload.userId);
+      const differentUserId = 'differentUser';
+      expect(auth.processJwt(differentUserId)).to.eventually.equal(differentUserId);
       fakePerm.restore();
     });
 
@@ -99,8 +91,8 @@ describe('Auth Helper', () => {
       const auth = new AuthHelper(
         validToken,
         pubKey,
-        gPerms.auth.service,
-        gPerms.auth.canMasquerade,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
       );
       expect(auth.processJwt('differentUser1')).to.be.rejectedWith('Mismatching userId');
     });
@@ -109,8 +101,8 @@ describe('Auth Helper', () => {
       const auth = new AuthHelper(
         jwt.sign({}, privKey, { algorithm: 'RS256' }),
         pubKey,
-        gPerms.auth.service,
-        gPerms.auth.canMasquerade,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
       );
       const verifyCall = auth.processJwt();
       expect(verifyCall).to.be.rejectedWith('Unable to decode for userId');
@@ -120,8 +112,8 @@ describe('Auth Helper', () => {
       const auth = new AuthHelper(
         `${validToken} invalidation string`,
         pubKey,
-        gPerms.auth.service,
-        gPerms.auth.canMasquerade,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
       );
       expect(auth.processJwt()).to.be.rejectedWith('invalid token');
     });
@@ -129,7 +121,7 @@ describe('Auth Helper', () => {
     it('Valid JWT permissions whether the user has the required permission', () => {
       const setup = () => {
         const perm = new PermissionManager(gPermsJSON);
-        perm.addPermission(gPerms.auth.service, gPerms.auth.access);
+        perm.addPermission(gPerms.genin.service, gPerms.genin.access);
         return perm.toString();
       };
 
@@ -144,11 +136,11 @@ describe('Auth Helper', () => {
       const auth = new AuthHelper(
         validToken2,
         pubKey,
-        gPerms.auth.service,
-        gPerms.auth.canMasquerade,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
       );
       auth.processJwt();
-      expect(auth.userCan(gPerms.auth.service, 2)).to.eventually.equal(false);
+      expect(auth.userCan(gPerms.genin.service, 2)).to.eventually.equal(false);
     });
   });
 });

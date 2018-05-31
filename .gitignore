@@ -67,5 +67,8 @@ serverless.env.yml
 # Webpack
 .webpack
 
+#Webpack output
+dist/
+
 version.json
 sequelize-config.json

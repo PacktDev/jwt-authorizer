@@ -4,6 +4,7 @@
   "description": "Module to manage JWT claims-based authentication with permissions.",
   "main": "index.js",
   "scripts": {
+    "build": "webpack",
     "test": "npm run lint && npm run unit && npm run coverage",
     "lint": "eslint ./src",
     "coverage": "babel-node ./node_modules/babel-istanbul/lib/cli.js check-coverage --statements 95 --functions 95 --branches 95 --lines 95",
@@ -18,7 +19,7 @@
     "babel-loader": "7.1.4",
     "babel-preset-env": "1.7.0",
     "chai": "4.1.2",
-    "chai-as-promised": "^7.1.1",
+    "chai-as-promised": "7.1.1",
     "cross-env": "5.1.5",
     "dotenv": "5.0.1",
     "eslint": "4.19.1",
@@ -30,12 +31,9 @@
     "mocha-bamboo-reporter": "1.1.1",
     "newman": "3.9.3",
     "node-rsa": "1.0.0",
-    "sequelize-cli": "4.0.0",
-    "serverless-domain-manager": "2.3.6",
-    "serverless-offline": "3.21.1",
-    "serverless-webpack": "4.4.0",
     "sinon": "4.5.0",
-    "webpack": "3.11.0"
+    "webpack": "4.6.0",
+    "webpack-cli": "2.1.4"
   },
   "dependencies": {
     "jsonwebtoken": "8.2.1"

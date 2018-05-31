@@ -1,5 +1,12 @@
+const path = require('path');
+
 module.exports = {
   mode: 'development',
+  entry: './index.js',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.js',
+  },
   target: 'node',
   module: {
     rules: [{
@@ -9,13 +16,5 @@ module.exports = {
         loader: 'babel-loader',
       }],
     }],
-  },
-  resolve: {
-    alias: {
-      'pg-native': 'noop2',
-      tedious: 'noop2',
-      sqlite3: 'noop2',
-      mysql2: 'noop2',
-    },
   },
 };
