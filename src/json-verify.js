@@ -1,4 +1,4 @@
-module.exports = (gPerms) => {
+const VerifyJson = (gPerms) => {
   const services = [];
   Object.keys(gPerms)
     .map((key) => {
@@ -39,3 +39,5 @@ module.exports = (gPerms) => {
       return key;
     });
 };
+
+export default VerifyJson;
