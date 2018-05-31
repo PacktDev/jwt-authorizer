@@ -2,13 +2,14 @@
   "name": "jwt-authorizer",
   "version": "1.0.0",
   "description": "Module to manage JWT claims-based authentication with permissions.",
-  "main": "index.js",
+  "main": "dist/bundle.js",
   "scripts": {
     "build": "webpack",
     "test": "npm run lint && npm run unit && npm run coverage",
     "lint": "eslint ./src",
     "coverage": "babel-node ./node_modules/babel-istanbul/lib/cli.js check-coverage --statements 95 --functions 95 --branches 95 --lines 95",
-    "unit": "babel-node ./node_modules/babel-istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- tests/*.js"
+    "unit": "babel-node ./node_modules/babel-istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- tests/*.js",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "author": "Chris Key",
   "license": "ISC",
