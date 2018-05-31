@@ -1,5 +1,5 @@
 {
-  "name": "jwt-authorizer",
+  "name": "@packt/jwt-authorizer",
   "version": "1.0.0",
   "description": "Module to manage JWT claims-based authentication with permissions.",
   "main": "dist/bundle.js",
@@ -11,8 +11,26 @@
     "unit": "babel-node ./node_modules/babel-istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- tests/*.js",
     "prepublishOnly": "npm run test && npm run build"
   },
-  "author": "Chris Key",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:packt-internal/jwt-authorizer.git"
+  },
+  "author": {
+    "name": "Packt Publishing Ltd",
+    "url": "https://www.packtpub.com/"
+  },
+  "contributors": [
+    {
+      "name": "Chris Key",
+      "email": "chrisk@packtpub.com"
+    },
+    {
+      "name": "Abhishek Pal",
+      "email": "abhishekp@packtpub.com"
+    }
+  ],
+  "license": "Apache-2.0",
+  "homepage": "https://bitbucket.org/packt-internal/jwt-authorizer",
   "devDependencies": {
     "babel-cli": "6.26.0",
     "babel-core": "6.26.3",
