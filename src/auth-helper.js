@@ -5,7 +5,7 @@ import PermissionManager from './permission-manager';
 export default class AuthHelper {
   /**
    * Instantiates the helper object with raw information needed.
-   * @param {string} rawJwt Raw Authorization header, incliuding Bearer.
+   * @param {string} rawJwt Raw Authorization header, including Bearer.
    * @param {string} publicKey Public key to verify signature of the JWT.
    * @param {object} globalPerms Object representing the permission structure.
    * @param {object} service Service from global permissions object.
@@ -26,7 +26,9 @@ export default class AuthHelper {
    */
   processJwt(userId) {
     return new Promise((resolve, reject) => {
-      jwt.verify(this.rawJwt, this.publicKey, (err, decoded) => {
+      if (!(/^Bearer [a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+?$/.test(this.rawJwt))) return reject(new Error('Malformed JWT passed in'));
+      const splitJwt = this.rawJwt.replace('Bearer ', '');
+      return jwt.verify(splitJwt, this.publicKey, (err, decoded) => {
         if (err) return reject(err);
         if (decoded.permissions) this.permissions = decoded.permissions;
         if (decoded.userId) {

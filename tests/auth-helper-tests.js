@@ -39,7 +39,8 @@ const payload = {
   username: 'test@mctestface.com',
 };
 
-const validToken = jwt.sign(payload, privKey, { algorithm: 'RS256' });
+const validToken = `Bearer ${jwt.sign(payload, privKey, { algorithm: 'RS256' })}`;
+console.log(`[${validToken}]`);
 
 describe('Auth Helper', () => {
   /* Constructor */
@@ -99,7 +100,7 @@ describe('Auth Helper', () => {
 
     it('Valid JWT no userId throws error', () => {
       const auth = new AuthHelper(
-        jwt.sign({}, privKey, { algorithm: 'RS256' }),
+        `Bearer ${jwt.sign({}, privKey, { algorithm: 'RS256' })}`,
         pubKey,
         gPerms.genin.service,
         gPerms.genin.canMasquerade,
@@ -108,9 +109,20 @@ describe('Auth Helper', () => {
       expect(verifyCall).to.be.rejectedWith('Unable to decode for userId');
     });
 
-    it('Invalid JWT throws error', () => {
+    it('Invalid JWT format throws error', () => {
       const auth = new AuthHelper(
         `${validToken} invalidation string`,
+        pubKey,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
+      );
+      expect(auth.processJwt()).to.be.rejectedWith('Malformed JWT passed in');
+    });
+
+    it('Invalid JWT throws error', () => {
+      const tamperedToken = validToken.replace(/[f-l]/g, '0');
+      const auth = new AuthHelper(
+        tamperedToken,
         pubKey,
         gPerms.genin.service,
         gPerms.genin.canMasquerade,
@@ -131,7 +143,7 @@ describe('Auth Helper', () => {
         permissions: setup(),
       };
 
-      const validToken2 = jwt.sign(payload2, privKey, { algorithm: 'RS256' });
+      const validToken2 = `Bearer ${jwt.sign(payload2, privKey, { algorithm: 'RS256' })}`;
 
       const auth = new AuthHelper(
         validToken2,
