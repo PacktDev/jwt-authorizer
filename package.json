@@ -52,6 +52,7 @@
     "webpack-cli": "2.1.4"
   },
   "dependencies": {
+    "@packt/error-custom": "0.0.1",
     "jsonwebtoken": "8.2.1"
   }
 }

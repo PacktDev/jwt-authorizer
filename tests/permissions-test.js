@@ -173,19 +173,43 @@ describe('Permission Manager', () => {
     });
 
     it('Fail for addPermission', () => {
-      const test = () => {
+      try {
         perm.addPermission(4, 3);
-      };
-
-      expect(test).to.throw('Service doesn\'t match global permissions object');
+      } catch (error) {
+        expect(error.message).to.equal('Service doesn\'t match global permissions object');
+        expect(error.errorCode).to.equal(1000109);
+        expect(error.statusCode).to.equal(500);
+      }
     });
 
     it('Fail for removePermission', () => {
-      const test = () => {
+      try {
         perm.removePermission(4, 3);
-      };
+      } catch (error) {
+        expect(error.message).to.equal('Service doesn\'t match global permissions object');
+        expect(error.errorCode).to.equal(1000110);
+        expect(error.statusCode).to.equal(500);
+      }
+    });
 
-      expect(test).to.throw('Service doesn\'t match global permissions object');
+    it('Fail for checkPermission', () => {
+      try {
+        perm.checkPermission(4, 3);
+      } catch (error) {
+        expect(error.message).to.equal('Service doesn\'t match global permissions object');
+        expect(error.errorCode).to.equal(1000111);
+        expect(error.statusCode).to.equal(500);
+      }
+    });
+
+    it('Fail for static checkPermission', () => {
+      try {
+        JwtAuthorizer.PermissionManager.checkPermissions(perm.toString(), 6, 3);
+      } catch (error) {
+        expect(error.message).to.equal('Service doesn\'t match global permissions object');
+        expect(error.errorCode).to.equal(1000112);
+        expect(error.statusCode).to.equal(500);
+      }
     });
 
     it('Modifying the existing perms by adding jonin.potentialKage', () => {

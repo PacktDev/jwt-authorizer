@@ -1,3 +1,5 @@
+import ErrorCustom from '@packt/error-custom';
+
 const VerifyJson = (gPerms) => {
   const services = [];
   Object.keys(gPerms)
@@ -6,15 +8,15 @@ const VerifyJson = (gPerms) => {
       const keys = Object.keys(service);
       const serviceNum = parseInt(service.service, 10);
       if (Number.isNaN(serviceNum)) {
-        throw new Error(`Service [${key}] has no numeric service index`);
+        throw new ErrorCustom(`Service [${key}] has no numeric service index`, 500, 1000103);
       }
 
       if (serviceNum >= Object.keys(gPerms).length) {
-        throw new Error(`Service [${key}] has an index greater than the number of services`);
+        throw new ErrorCustom(`Service [${key}] has an index greater than the number of services`, 500, 1000104);
       }
 
       if (services.find(eachService => eachService === serviceNum)) {
-        throw new Error(`Service index [${serviceNum}] exists twice (extra time in [${key}])`);
+        throw new ErrorCustom(`Service index [${serviceNum}] exists twice (extra time in [${key}])`, 500, 1000105);
       } else {
         services.push(serviceNum);
       }
@@ -25,11 +27,11 @@ const VerifyJson = (gPerms) => {
         const value = service[keys[i]];
         if (permissionKey !== 'service') {
           if (Math.log2(value) !== parseInt(Math.log2(value), 10)) {
-            throw new Error(`Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] is not Base2`);
+            throw new Error(`Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] is not Base2`, 500, 1000106);
           }
 
           if (numbers.find(number => number === value)) {
-            throw new Error(`Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] exists twice`);
+            throw new Error(`Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] exists twice`, 500, 1000107);
           } else {
             numbers.push(value);
           }
