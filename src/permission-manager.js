@@ -117,7 +117,7 @@ export default class PermissionManager {
   static checkPermissions(encodedPermissions, serviceIndex, permission) {
     const jwtPermissions = new Uint8Array(Buffer.from(encodedPermissions, 'base64'));
     if (serviceIndex >= jwtPermissions.length) {
-      throw new ErrorCustom('Service doesn\'t match global permissions object', 500, 1000112);
+      return false;
     }
 
     return (jwtPermissions[serviceIndex] & permission) === permission;

@@ -202,14 +202,8 @@ describe('Permission Manager', () => {
       }
     });
 
-    it('Fail for static checkPermission', () => {
-      try {
-        JwtAuthorizer.PermissionManager.checkPermissions(perm.toString(), 6, 3);
-      } catch (error) {
-        expect(error.message).to.equal('Service doesn\'t match global permissions object');
-        expect(error.errorCode).to.equal(1000112);
-        expect(error.statusCode).to.equal(500);
-      }
+    it('False for static checkPermission out of range', () => {
+      expect(JwtAuthorizer.PermissionManager.checkPermissions(perm.toString(), 6, 3)).to.equal(false);
     });
 
     it('Modifying the existing perms by adding jonin.potentialKage', () => {
