@@ -88,48 +88,6 @@ describe('Auth Helper', () => {
       fakePerm.restore();
     });
 
-    it('Valid JWT decoded passed with different userId has `Mismatching userId` returned', () => {
-      const auth = new AuthHelper(
-        validToken,
-        pubKey,
-        gPerms.genin.service,
-        gPerms.genin.canMasquerade,
-      );
-      expect(auth.processJwt('differentUser1')).to.be.rejectedWith('Mismatching userId');
-    });
-
-    it('Valid JWT no userId throws error', () => {
-      const auth = new AuthHelper(
-        `Bearer ${jwt.sign({}, privKey, { algorithm: 'RS256' })}`,
-        pubKey,
-        gPerms.genin.service,
-        gPerms.genin.canMasquerade,
-      );
-      const verifyCall = auth.processJwt();
-      expect(verifyCall).to.be.rejectedWith('Unable to decode for userId');
-    });
-
-    it('Invalid JWT format throws error', () => {
-      const auth = new AuthHelper(
-        `${validToken} invalidation string`,
-        pubKey,
-        gPerms.genin.service,
-        gPerms.genin.canMasquerade,
-      );
-      expect(auth.processJwt()).to.be.rejectedWith('Malformed JWT passed in');
-    });
-
-    it('Invalid JWT throws error', () => {
-      const tamperedToken = validToken.replace(/[f-l]/g, '0');
-      const auth = new AuthHelper(
-        tamperedToken,
-        pubKey,
-        gPerms.genin.service,
-        gPerms.genin.canMasquerade,
-      );
-      expect(auth.processJwt()).to.be.rejectedWith('invalid token');
-    });
-
     it('Valid JWT permissions whether the user has the required permission', () => {
       const setup = () => {
         const perm = new PermissionManager(gPermsJSON);
@@ -153,6 +111,69 @@ describe('Auth Helper', () => {
       );
       auth.processJwt();
       expect(auth.userCan(gPerms.genin.service, 2)).to.eventually.equal(false);
+    });
+  });
+
+  describe('Invalid JWT', () => {
+    it('Invalid JWT format throws error', () => {
+      const auth = new AuthHelper(
+        `${validToken} invalidation string`,
+        pubKey,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
+      );
+      auth.processJwt()
+        .catch((error) => {
+          expect(error.message).to.equal('Malformed JWT passed in');
+          expect(error.errorCode).to.equal(1000113);
+          expect(error.statusCode).to.equal(400);
+        });
+    });
+
+    it('Invalid JWT throws error', () => {
+      const tamperedToken = validToken.replace(/[f-l]/g, '0');
+      const auth = new AuthHelper(
+        tamperedToken,
+        pubKey,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
+      );
+      auth.processJwt()
+        .catch((error) => {
+          expect(error.message).to.equal('invalid token');
+          expect(error.errorCode).to.equal(1000100);
+          expect(error.statusCode).to.equal(401);
+        });
+    });
+
+    it('Valid JWT no userId throws error', () => {
+      const auth = new AuthHelper(
+        `Bearer ${jwt.sign({}, privKey, { algorithm: 'RS256' })}`,
+        pubKey,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
+      );
+      auth.processJwt()
+        .catch((error) => {
+          expect(error.message).to.equal('Unable to decode for userId');
+          expect(error.errorCode).to.equal(1000102);
+          expect(error.statusCode).to.equal(401);
+        });
+    });
+
+    it('Valid JWT decoded passed with different userId has `Mismatching userId` returned', () => {
+      const auth = new AuthHelper(
+        validToken,
+        pubKey,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
+      );
+      auth.processJwt('doobie')
+        .catch((error) => {
+          expect(error.message).to.equal('Mismatching userId');
+          expect(error.errorCode).to.equal(1000101);
+          expect(error.statusCode).to.equal(403);
+        });
     });
   });
 });

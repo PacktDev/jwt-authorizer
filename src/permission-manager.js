@@ -1,4 +1,5 @@
 /* eslint no-bitwise: "off" */
+import ErrorCustom from '@packt/error-custom';
 import jsonVerify from './json-verify';
 
 export default class PermissionManager {
@@ -9,7 +10,7 @@ export default class PermissionManager {
    */
   constructor(globalJSON, permsIn = undefined) {
     if (!globalJSON) {
-      throw Error('No config file supplied');
+      throw new ErrorCustom('No config file supplied', 500, 1000108);
     }
 
     this.gPerms = JSON.parse(globalJSON);
@@ -35,7 +36,7 @@ export default class PermissionManager {
    */
   addPermission(serviceIndex, perm) {
     if (serviceIndex >= this.perms.length) {
-      throw new Error('Service doesn\'t match global permissions object');
+      throw new ErrorCustom('Service doesn\'t match global permissions object', 500, 1000109);
     }
 
     this.perms[serviceIndex] |= perm;
@@ -47,7 +48,7 @@ export default class PermissionManager {
    */
   removePermission(serviceIndex, perm) {
     if (serviceIndex >= this.perms.length) {
-      throw new Error('Service doesn\'t match global permissions object');
+      throw new ErrorCustom('Service doesn\'t match global permissions object', 500, 1000110);
     }
 
     this.perms[serviceIndex] &= ~perm;
@@ -97,6 +98,10 @@ export default class PermissionManager {
    * @returns {boolean} Whether the permission is included
    */
   checkPermission(serviceIndex, permission) {
+    if (serviceIndex >= this.perms.length) {
+      throw new ErrorCustom('Service doesn\'t match global permissions object', 500, 1000111);
+    }
+
     return (this.perms[serviceIndex] & permission) === permission;
   }
 
@@ -111,6 +116,9 @@ export default class PermissionManager {
    */
   static checkPermissions(encodedPermissions, serviceIndex, permission) {
     const jwtPermissions = new Uint8Array(Buffer.from(encodedPermissions, 'base64'));
+    if (serviceIndex >= jwtPermissions.length) {
+      return false;
+    }
 
     return (jwtPermissions[serviceIndex] & permission) === permission;
   }
