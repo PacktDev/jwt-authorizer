@@ -15,7 +15,7 @@ Code    Class             Function                Description
 1000105	VerifyJson        VerifyJson              Service index [${serviceNum}] exists twice (extra time in [${key}])
 1000106	VerifyJson        VerifyJson              Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] is not Base2
 1000107	VerifyJson        VerifyJson              Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] exists twice
-1000108	PermissionManager constructor	            No config file supplied
+1000108	PermissionManager constructor             No config file supplied
 1000109	PermissionManager addPermission	          Service doesn't match global permissions object
 1000110	PermissionManager removePermission        Service doesn't match global permissions object
 1000111	PermissionManager checkPermission         Service doesn't match global permissions object
