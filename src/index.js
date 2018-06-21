@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import PermissionManager from './src/permission-manager';
-import AuthHelper from './src/auth-helper';
+import PermissionManager from './permission-manager';
+import AuthHelper from './auth-helper';
 
 export {
   PermissionManager,

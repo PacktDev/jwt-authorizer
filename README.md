@@ -7,20 +7,21 @@ Exceptions are thrown using the `@packt/error-custom` error type, with unique er
 ```
 Code    Class             Function                Description
 ------- ----------------- ----------------------- -----------------------------------
-1000100	AuthHelper        processJwt              JWT verification failed
-1000101	AuthHelper        processJwt              UserId doesn't match and no permission to override
-1000102	AuthHelper        processJwt              No userId in token
-1000103	VerifyJson        VerifyJson              Service [${key}] has no numeric service index
-1000104	VerifyJson        VerifyJson              Service [${key}] has an index greater than the number of services
-1000105	VerifyJson        VerifyJson              Service index [${serviceNum}] exists twice (extra time in [${key}])
-1000106	VerifyJson        VerifyJson              Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] is not Base2
-1000107	VerifyJson        VerifyJson              Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] exists twice
-1000108	PermissionManager constructor             No config file supplied
-1000109	PermissionManager addPermission	          Service doesn't match global permissions object
-1000110	PermissionManager removePermission        Service doesn't match global permissions object
-1000111	PermissionManager checkPermission         Service doesn't match global permissions object
-1000112	PermissionManager static checkPermission  Service doesn't match global permissions object
-1000113	AuthHelper        processJwt              Invalid Jwt format
+1000100 AuthHelper        processJwt              JWT verification failed
+1000101 AuthHelper        processJwt              UserId doesn't match and no permission to override
+1000102 AuthHelper        processJwt              No userId in token
+1000103 VerifyJson        VerifyJson              Service [${key}] has no numeric service index
+1000104 VerifyJson        VerifyJson              Service [${key}] has an index greater than the number of services
+1000105 VerifyJson        VerifyJson              Service index [${serviceNum}] exists twice (extra time in [${key}])
+1000106 VerifyJson        VerifyJson              Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] is not Base2
+1000107 VerifyJson        VerifyJson              Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] exists twice
+1000108 PermissionManager constructor             No config file supplied
+1000109 PermissionManager addPermission           Service doesn't match global permissions object
+1000110 PermissionManager removePermission        Service doesn't match global permissions object
+1000111 PermissionManager checkPermission         Service doesn't match global permissions object
+1000112 PermissionManager static checkPermission  Service doesn't match global permissions object
+1000113 AuthHelper        processJwt              Invalid Jwt format
+1000114 AuthHelper        constructor             Invalid public key format
 ```
 
 ## Requirements
@@ -73,7 +74,8 @@ As the `UInt8Array` can only store 8 bits per service, there can only be 8 permi
 
 Instantiates the helper object with raw information needed.
    * @param {string} rawJwt Raw Authorization header, incliuding Bearer.
-   * @param {string} publicKey Public key to verify signature of the JWT.
+   * @param {string} publicKey Public key to verify signature of the JWT. Raw string or 
+   * base64 encoded.
    * @param {object} service Service from global permissions object.
    * @param {object} overrideAccessPermission Permission from global permissions in
       service that allows a user to retrieve another user's details.

@@ -2,7 +2,7 @@
 /* eslint-disable no-new */
 /* eslint-disable no-unused-expressions */
 
-const JwtAuthorizer = require('../index');
+const JwtAuthorizer = require('../src/index');
 const chai = require('chai'); // eslint-disable-line
 const expect = chai.expect; // eslint-disable-line
 

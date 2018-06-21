@@ -8,7 +8,7 @@ import NodeRSA from 'node-rsa';
 import jwt from 'jsonwebtoken';
 import chaiaspromised from 'chai-as-promised';
 
-import { AuthHelper, PermissionManager } from '../index';
+import { AuthHelper, PermissionManager } from '../src/index';
 
 chai.use(chaiaspromised);
 
@@ -174,6 +174,35 @@ describe('Auth Helper', () => {
           expect(error.errorCode).to.equal(1000101);
           expect(error.statusCode).to.equal(403);
         });
+    });
+  });
+
+  describe('Constructor tests', () => {
+    it('Valid JWT with base64 in constructor', () => {
+      const auth = new AuthHelper(
+        validToken,
+        Buffer.from(pubKey).toString('base64'),
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
+      );
+      expect(auth.processJwt()).to.eventually.equal(payload.userId);
+    });
+
+    it('Valid JWT with bad constructor', () => {
+      try {
+        const auth = new AuthHelper(
+          validToken,
+          (Math.random() * 1000000).toString(),
+          gPerms.genin.service,
+          gPerms.genin.canMasquerade,
+        );
+        expect(auth.processJwt()).to.eventually.equal(payload.userId);
+        expect(1).to.equal('fail');
+      } catch (error) {
+        expect(error).to.have.property('message', 'Public key could not be read properly');
+        expect(error).to.have.property('errorCode', 1000114);
+        expect(error).to.have.property('statusCode', 500);
+      }
     });
   });
 });
