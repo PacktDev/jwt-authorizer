@@ -8,7 +8,7 @@ import NodeRSA from 'node-rsa';
 import jwt from 'jsonwebtoken';
 import chaiaspromised from 'chai-as-promised';
 
-import { AuthHelper, PermissionManager } from '../index';
+import { AuthHelper, PermissionManager } from '../src/index';
 
 chai.use(chaiaspromised);
 
