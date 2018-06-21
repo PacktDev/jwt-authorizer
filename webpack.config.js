@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+  devtool: 'inline-source-map',
   mode: 'development',
   entry: './index.js',
   output: {
@@ -10,13 +11,4 @@ module.exports = {
     library: '@packt/jwt-authorizer',
   },
   target: 'node',
-  module: {
-    rules: [{
-      test: /\.js$/,
-      exclude: /node_modules/,
-      use: [{
-        loader: 'babel-loader',
-      }],
-    }],
-  },
 };

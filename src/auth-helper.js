@@ -7,14 +7,23 @@ export default class AuthHelper {
   /**
    * Instantiates the helper object with raw information needed.
    * @param {string} rawJwt Raw Authorization header, including Bearer.
-   * @param {string} publicKey Public key to verify signature of the JWT.
+   * @param {string} publicKey Public key to verify signature of the JWT, raw string
+   * or base64 encoded.
    * @param {object} service Service from global permissions object.
    * @param {object} overrideAccessPermission Permission from global permissions in
    * service that allows a user to retrieve another user's details.
    */
   constructor(rawJwt, publicKey, service, overrideAccessPermission) {
     this.rawJwt = rawJwt;
-    this.publicKey = publicKey;
+    if (publicKey.startsWith('----')) {
+      this.publicKey = publicKey;
+    } else {
+      this.publicKey = Buffer.from(publicKey, 'base64').toString('utf8');
+      if (!this.publicKey.startsWith('----')) {
+        throw new ErrorCustom('Public key could not be read properly', 500, 1000114);
+      }
+    }
+
     this.service = service;
     this.overrideAccessPermission = overrideAccessPermission;
   }
