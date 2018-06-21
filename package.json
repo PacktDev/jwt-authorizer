@@ -2,9 +2,9 @@
   "name": "@packt/jwt-authorizer",
   "version": "1.3.0",
   "description": "Module to manage JWT claims-based authentication with permissions.",
-  "main": "dist/bundle.js",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "webpack",
+    "build": "babel src -d dist",
     "test": "npm run lint && npm run unit && npm run coverage",
     "lint": "eslint ./src",
     "coverage": "babel-node ./node_modules/babel-istanbul/lib/cli.js check-coverage --statements 95 --functions 95 --branches 95 --lines 95",
