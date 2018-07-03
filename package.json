@@ -52,7 +52,8 @@
     "webpack-cli": "3.0.8"
   },
   "dependencies": {
-    "@packt/error-custom": "0.0.2",
+    "@packt/error-custom": "0.1.1",
+    "joi": "^13.4.0",
     "jsonwebtoken": "8.3.0"
   }
 }
