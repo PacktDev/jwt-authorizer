@@ -91,6 +91,7 @@ describe('Auth Helper', () => {
     it('Valid JWT permissions whether the user has the required permission', () => {
       const setup = () => {
         const perm = new PermissionManager(gPermsJSON);
+        console.log('serviceIndex', gPerms.genin.service);
         perm.addPermission(gPerms.genin.service, gPerms.genin.access);
         return perm.toString();
       };

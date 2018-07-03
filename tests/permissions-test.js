@@ -172,9 +172,10 @@ describe('Permission Manager', () => {
       expect(perm.checkPermission(gPerms.genin.service, gPerms.genin.dRankMission)).to.equal(true);
     });
 
-    it('Fail for addPermission', () => {
+    it('Fail for addPermission service out of range', () => {
       try {
         perm.addPermission(4, 3);
+        expect(0).to.equal('fail happy path');
       } catch (error) {
         expect(error.message).to.equal('Service doesn\'t match global permissions object');
         expect(error.errorCode).to.equal(1000109);
@@ -182,9 +183,32 @@ describe('Permission Manager', () => {
       }
     });
 
-    it('Fail for removePermission', () => {
+    it('Fail for addPermission service not a number', () => {
+      try {
+        perm.addPermission('service', 3);
+        expect(0).to.equal('fail happy path');
+      } catch (error) {
+        expect(error.message).to.equal('Invalid serviceIndex');
+        expect(error.errorCode).to.equal(1000115);
+        expect(error.statusCode).to.equal(500);
+      }
+    });
+
+    it('Fail for addPermission perm not a number', () => {
+      try {
+        perm.addPermission(3, 'perm');
+        expect(0).to.equal('fail happy path');
+      } catch (error) {
+        expect(error.message).to.equal('Invalid perm number');
+        expect(error.errorCode).to.equal(1000116);
+        expect(error.statusCode).to.equal(500);
+      }
+    });
+
+    it('Fail for removePermission service out of range', () => {
       try {
         perm.removePermission(4, 3);
+        expect(0).to.equal('fail happy path');
       } catch (error) {
         expect(error.message).to.equal('Service doesn\'t match global permissions object');
         expect(error.errorCode).to.equal(1000110);
@@ -192,9 +216,32 @@ describe('Permission Manager', () => {
       }
     });
 
-    it('Fail for checkPermission', () => {
+    it('Fail for removePermission service not a number', () => {
+      try {
+        perm.removePermission('service', 3);
+        expect(0).to.equal('fail happy path');
+      } catch (error) {
+        expect(error.message).to.equal('Invalid serviceIndex');
+        expect(error.errorCode).to.equal(1000117);
+        expect(error.statusCode).to.equal(500);
+      }
+    });
+
+    it('Fail for removePermission perm not a number', () => {
+      try {
+        perm.removePermission(3, 'perm');
+        expect(0).to.equal('fail happy path');
+      } catch (error) {
+        expect(error.message).to.equal('Invalid perm number');
+        expect(error.errorCode).to.equal(1000118);
+        expect(error.statusCode).to.equal(500);
+      }
+    });
+
+    it('Fail for checkPermission service out of range', () => {
       try {
         perm.checkPermission(4, 3);
+        expect(0).to.equal('fail happy path');
       } catch (error) {
         expect(error.message).to.equal('Service doesn\'t match global permissions object');
         expect(error.errorCode).to.equal(1000111);
@@ -202,8 +249,53 @@ describe('Permission Manager', () => {
       }
     });
 
+    it('Fail for checkPermission service not a number', () => {
+      try {
+        perm.checkPermission('service', 3);
+        expect(0).to.equal('fail happy path');
+      } catch (error) {
+        expect(error.message).to.equal('Invalid serviceIndex');
+        expect(error.errorCode).to.equal(1000119);
+        expect(error.statusCode).to.equal(500);
+      }
+    });
+
+    it('Fail for checkPermission perm not a number', () => {
+      try {
+        perm.checkPermission(3, 'perm');
+        expect(0).to.equal('fail happy path');
+      } catch (error) {
+        expect(error.message).to.equal('Invalid perm number');
+        expect(error.errorCode).to.equal(1000120);
+        expect(error.statusCode).to.equal(500);
+      }
+    });
+
     it('False for static checkPermission out of range', () => {
-      expect(JwtAuthorizer.PermissionManager.checkPermissions(perm.toString(), 6, 3)).to.equal(false);
+      expect(JwtAuthorizer.PermissionManager.checkPermissions(perm.toString(), 6, 3))
+        .to.equal(false);
+    });
+
+    it('Fail for static checkPermission service not a number', () => {
+      try {
+        JwtAuthorizer.PermissionManager.checkPermissions(perm.toString(), 'service', 3);
+        expect(0).to.equal('fail happy path');
+      } catch (error) {
+        expect(error.message).to.equal('Invalid serviceIndex');
+        expect(error.errorCode).to.equal(1000121);
+        expect(error.statusCode).to.equal(500);
+      }
+    });
+
+    it('Fail for static checkPermission perm not a number', () => {
+      try {
+        JwtAuthorizer.PermissionManager.checkPermissions(perm.toString(), 3, 'perm');
+        expect(0).to.equal('fail happy path');
+      } catch (error) {
+        expect(error.message).to.equal('Invalid perm number');
+        expect(error.errorCode).to.equal(1000122);
+        expect(error.statusCode).to.equal(500);
+      }
     });
 
     it('Modifying the existing perms by adding jonin.potentialKage', () => {
