@@ -115,7 +115,7 @@ describe('Auth Helper', () => {
   });
 
   describe('Invalid JWT', () => {
-    it('Invalid JWT format throws error', () => {
+    it('Invalid JWT format throws error', (done) => {
       const auth = new AuthHelper(
         `${validToken} invalidation string`,
         pubKey,
@@ -123,14 +123,19 @@ describe('Auth Helper', () => {
         gPerms.genin.canMasquerade,
       );
       auth.processJwt()
+        .then(() => {
+          expect(0).to.equal('fail happy path');
+          done();
+        })
         .catch((error) => {
           expect(error.message).to.equal('Malformed JWT passed in');
           expect(error.errorCode).to.equal(1000113);
           expect(error.statusCode).to.equal(400);
+          done();
         });
     });
 
-    it('Invalid JWT throws error', () => {
+    it('Invalid JWT throws error', (done) => {
       const tamperedToken = validToken.replace(/[f-l]/g, '0');
       const auth = new AuthHelper(
         tamperedToken,
@@ -139,14 +144,19 @@ describe('Auth Helper', () => {
         gPerms.genin.canMasquerade,
       );
       auth.processJwt()
+        .then(() => {
+          expect(0).to.equal('fail happy path');
+          done();
+        })
         .catch((error) => {
           expect(error.message).to.equal('invalid token');
           expect(error.errorCode).to.equal(1000100);
           expect(error.statusCode).to.equal(401);
+          done();
         });
     });
 
-    it('Valid JWT no userId throws error', () => {
+    it('Valid JWT no userId throws error', (done) => {
       const auth = new AuthHelper(
         `Bearer ${jwt.sign({}, privKey, { algorithm: 'RS256' })}`,
         pubKey,
@@ -154,14 +164,19 @@ describe('Auth Helper', () => {
         gPerms.genin.canMasquerade,
       );
       auth.processJwt()
+        .then(() => {
+          expect(0).to.equal('fail happy path');
+          done();
+        })
         .catch((error) => {
           expect(error.message).to.equal('Unable to decode for userId');
           expect(error.errorCode).to.equal(1000102);
           expect(error.statusCode).to.equal(401);
+          done();
         });
     });
 
-    it('Valid JWT decoded passed with different userId has `Mismatching userId` returned', () => {
+    it('Valid JWT decoded passed with different userId has `Mismatching userId` returned', (done) => {
       const auth = new AuthHelper(
         validToken,
         pubKey,
@@ -169,10 +184,33 @@ describe('Auth Helper', () => {
         gPerms.genin.canMasquerade,
       );
       auth.processJwt('doobie')
+        .then(() => {
+          expect(0).to.equal('fail happy path');
+          done();
+        })
         .catch((error) => {
           expect(error.message).to.equal('Mismatching userId');
           expect(error.errorCode).to.equal(1000101);
           expect(error.statusCode).to.equal(403);
+          done();
+        });
+    });
+
+    it('Valid JWT decoded passed with different userId and no override has `Mismatching userId` returned', (done) => {
+      const auth = new AuthHelper(
+        validToken,
+        pubKey,
+      );
+      auth.processJwt('doobie')
+        .then(() => {
+          expect(0).to.equal('fail happy path');
+          done();
+        })
+        .catch((error) => {
+          expect(error.message).to.equal('Mismatching userId');
+          expect(error.errorCode).to.equal(1000101);
+          expect(error.statusCode).to.equal(403);
+          done();
         });
     });
   });
