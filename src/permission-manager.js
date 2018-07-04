@@ -1,5 +1,6 @@
 /* eslint no-bitwise: "off" */
 import ErrorCustom from '@packt/error-custom';
+import Joi from 'joi';
 import jsonVerify from './json-verify';
 
 export default class PermissionManager {
@@ -35,6 +36,16 @@ export default class PermissionManager {
    * @param  {number} perm Value of the permission to add
    */
   addPermission(serviceIndex, perm) {
+    const serviceValidate = Joi.validate(serviceIndex, Joi.number().integer().min(0));
+    if (serviceIndex === undefined || serviceValidate.error) {
+      throw new ErrorCustom('Invalid serviceIndex', 500, 1000115, serviceValidate.error);
+    }
+
+    const permValidate = Joi.validate(perm, Joi.number().integer().min(0));
+    if (perm === undefined || permValidate.error) {
+      throw new ErrorCustom('Invalid perm number', 500, 1000116, permValidate.error);
+    }
+
     if (serviceIndex >= this.perms.length) {
       throw new ErrorCustom('Service doesn\'t match global permissions object', 500, 1000109);
     }
@@ -47,6 +58,16 @@ export default class PermissionManager {
    * @param  {number} perm Value of the permission to remove
    */
   removePermission(serviceIndex, perm) {
+    const serviceValidate = Joi.validate(serviceIndex, Joi.number().integer().min(0));
+    if (serviceIndex === undefined || serviceValidate.error) {
+      throw new ErrorCustom('Invalid serviceIndex', 500, 1000117, serviceValidate.error);
+    }
+
+    const permValidate = Joi.validate(perm, Joi.number().integer().min(0));
+    if (perm === undefined || permValidate.error) {
+      throw new ErrorCustom('Invalid perm number', 500, 1000118, permValidate.error);
+    }
+
     if (serviceIndex >= this.perms.length) {
       throw new ErrorCustom('Service doesn\'t match global permissions object', 500, 1000110);
     }
@@ -98,6 +119,16 @@ export default class PermissionManager {
    * @returns {boolean} Whether the permission is included
    */
   checkPermission(serviceIndex, permission) {
+    const serviceValidate = Joi.validate(serviceIndex, Joi.number().integer().min(0));
+    if (serviceIndex === undefined || serviceValidate.error) {
+      throw new ErrorCustom('Invalid serviceIndex', 500, 1000119, serviceValidate.error);
+    }
+
+    const permValidate = Joi.validate(permission, Joi.number().integer().min(0));
+    if (permission === undefined || permValidate.error) {
+      throw new ErrorCustom('Invalid perm number', 500, 1000120, permValidate.error);
+    }
+
     if (serviceIndex >= this.perms.length) {
       throw new ErrorCustom('Service doesn\'t match global permissions object', 500, 1000111);
     }
@@ -115,6 +146,16 @@ export default class PermissionManager {
    * @returns {boolean} Whether the permission is included
    */
   static checkPermissions(encodedPermissions, serviceIndex, permission) {
+    const serviceValidate = Joi.validate(serviceIndex, Joi.number().integer().min(0));
+    if (serviceIndex === undefined || serviceValidate.error) {
+      throw new ErrorCustom('Invalid serviceIndex', 500, 1000121, serviceValidate.error);
+    }
+
+    const permValidate = Joi.validate(permission, Joi.number().integer().min(0));
+    if (permission === undefined || permValidate.error) {
+      throw new ErrorCustom('Invalid perm number', 500, 1000122, permValidate.error);
+    }
+
     const jwtPermissions = new Uint8Array(Buffer.from(encodedPermissions, 'base64'));
     if (serviceIndex >= jwtPermissions.length) {
       return false;
