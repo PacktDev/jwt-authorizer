@@ -52,9 +52,9 @@ Permissions are detailed as an object with the following format:
   }
 }
 ```
-Top level objects are individual services, and each must contain a `service` property with a numeric index. These must be 0 based, unique and no higher than the number of object - 1.
+Top level objects are individual services, and each must contain a `service` property with a numeric index. These must be 0 based, unique and no higher than the number of objects-1.
 
-Within each object are permissions properties, with are base2 numbers.
+Within each object are permission properties, which are base2 numbers.
 
 This object structure is passed into the `PermissionManager` class as a JSON string and validated for correct structure. It is recommended that the JSON is stored in the authentication and authorization service (that generates the JWTs) and validated as part of the build step.
 
@@ -73,12 +73,11 @@ As the `UInt8Array` can only store 8 bits per service, there can only be 8 permi
 `constructor(rawJwt, publicKey, service, overrideAccessPermission)`
 
 Instantiates the helper object with raw information needed.
-   * @param {string} rawJwt Raw Authorization header, incliuding Bearer.
-   * @param {string} publicKey Public key to verify signature of the JWT. Raw string or 
-   * base64 encoded.
-   * @param {object} service Service from global permissions object.
+   * @param {string} rawJwt Raw Authorization header, including Bearer.
+   * @param {string} publicKey Public key to verify signature of the JWT. Raw string or base64 encoded.
+   * @param {object} service Service from global permissions object [optional].
    * @param {object} overrideAccessPermission Permission from global permissions in
-      service that allows a user to retrieve another user's details.
+      service that allows a user to retrieve another user's details [optional].
 
 `processJwt(userId)`
 
