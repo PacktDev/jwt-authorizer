@@ -316,5 +316,46 @@ describe('Permission Manager', () => {
       expect(test.checkPermission(gPerms.jonin.service, gPerms.jonin.sRankMission)).to.equal(false);
       expect(perm.checkPermission(gPerms.genin.service, gPerms.genin.dRankMission)).to.equal(true);
     });
+
+    it('listPermissions returns names when type is set to names', () => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, perm.toString());
+      const listedPerms = test.listPermissions();
+      expect(listedPerms).to.have.lengthOf(5);
+      expect(listedPerms[0]).to.equal('[genin].[dRankMission]');
+      expect(listedPerms[1]).to.equal('[genin].[cRankMission]');
+      expect(listedPerms[2]).to.equal('[chunin].[bRankMission]');
+      expect(listedPerms[3]).to.equal('[chunin].[aRankMission]');
+      expect(listedPerms[4]).to.equal('[jonin].[sRankMission]');
+
+    });
+
+    it('listPermissions returns indicies when type is set to indices', () => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, perm.toString());
+      const listedPerms = test.listPermissions('indices');
+
+      expect(listedPerms).to.have.lengthOf(5);
+      expect(listedPerms[0]).to.equal('[0].[1]');
+      expect(listedPerms[1]).to.equal('[0].[2]');
+      expect(listedPerms[2]).to.equal('[1].[1]');
+      expect(listedPerms[3]).to.equal('[1].[2]');
+      expect(listedPerms[4]).to.equal('[2].[1]');
+    });
+
+    it('listPermissions returns indicies when type is set to complete', () => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, perm.toString());
+      const listedPerms = test.listPermissions('complete');
+
+      expect(listedPerms).to.have.lengthOf(5);
+      expect(listedPerms[0]).to.be.instanceOf(Object);
+      expect(listedPerms[0].permissionName).to.equal('dRankMission');
+      expect(listedPerms[1].serviceIndex).to.equal(0);
+      expect(listedPerms[1].permissionIndex).to.equal(2);
+      expect(listedPerms[2].serviceName).to.equal('chunin');
+      expect(listedPerms[2].serviceIndex).to.equal(1);
+      expect(listedPerms[4].serviceName).to.equal('jonin');
+      expect(listedPerms[4].serviceIndex).to.equal(2);
+
+
+    });
   });
 });
