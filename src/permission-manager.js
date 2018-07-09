@@ -105,9 +105,6 @@ export default class PermissionManager {
           if (servicePermission !== 'service') {
             if ((this.perms[service.service] & value) === value) {
               switch (type) {
-                case 'names':
-                  ownedPerms.push(`[${serviceNm}].[${servicePermission}]`);
-                  break;
                 case 'indices':
                   ownedPerms.push(`[${serviceIdx}].[${value}]`);
                   break;
