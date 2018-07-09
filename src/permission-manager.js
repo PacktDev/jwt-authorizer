@@ -86,21 +86,39 @@ export default class PermissionManager {
   /**
    * Returns an array of permissions set for the current object
    *
+   * @params {string} type
+   * Sets type of what is returned
+   *
    * @returns {object} Array of strings in the form [service].[permission]
    */
-  listPermissions() {
+  listPermissions(type) {
     const ownedPerms = [];
     Object.keys(this.gPerms)
-      .map((serviceName) => {
-        const service = this.gPerms[serviceName];
-        const servicePermissions = Object.keys(this.gPerms[serviceName]);
+      .map((serviceNm) => {
+        const service = this.gPerms[serviceNm];
+        const servicePermissions = Object.keys(this.gPerms[serviceNm]);
 
         for (let i = 0; i < servicePermissions.length; i += 1) {
           const servicePermission = servicePermissions[i];
           const value = service[servicePermissions[i]];
+          const serviceIdx = this.gPerms[serviceNm].service;
           if (servicePermission !== 'service') {
             if ((this.perms[service.service] & value) === value) {
-              ownedPerms.push(`[${serviceName}].[${servicePermission}]`);
+              switch (type) {
+                case 'indices':
+                  ownedPerms.push(`[${serviceIdx}].[${value}]`);
+                  break;
+                case 'complete':
+                  ownedPerms.push({
+                    serviceName: serviceNm,
+                    serviceIndex: serviceIdx,
+                    permissionName: servicePermission,
+                    permissionIndex: value,
+                  });
+                  break;
+                default:
+                  ownedPerms.push(`[${serviceNm}].[${servicePermission}]`);
+              }
             }
           }
         }
