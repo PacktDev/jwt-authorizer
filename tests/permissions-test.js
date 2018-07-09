@@ -341,7 +341,7 @@ describe('Permission Manager', () => {
       expect(listedPerms[4]).to.equal('[2].[1]');
     });
 
-    it('listPermissions returns indicies when type is set to complete', () => {
+    it('listPermissions returns complete pemissions object when type is set to complete', () => {
       const test = new JwtAuthorizer.PermissionManager(gPermsJson, perm.toString());
       const listedPerms = test.listPermissions('complete');
 
