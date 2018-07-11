@@ -7,6 +7,7 @@ import chai, { expect } from 'chai'; // eslint-disable-line
 import NodeRSA from 'node-rsa';
 import jwt from 'jsonwebtoken';
 import chaiaspromised from 'chai-as-promised';
+import uuid from 'uuid/v4';
 
 import { AuthHelper, PermissionManager } from '../src/index';
 
@@ -40,6 +41,7 @@ const payload = {
 };
 
 const validToken = `Bearer ${jwt.sign(payload, privKey, { algorithm: 'RS256' })}`;
+const validPermissionsToken = `Bearer ${jwt.sign(Object.assign(payload, { permissions: 'AA==' }), privKey, { algorithm: 'RS256' })}`;
 console.log(`[${validToken}]`);
 
 describe('Auth Helper', () => {
@@ -241,6 +243,49 @@ describe('Auth Helper', () => {
         expect(error).to.have.property('errorCode', 1000114);
         expect(error).to.have.property('statusCode', 500);
       }
+    });
+  });
+
+  describe('Decoded User ID tests', () => {
+    it('If no JWT processed', () => {
+      const auth = new AuthHelper(
+        validToken,
+        Buffer.from(pubKey).toString('base64'),
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
+      );
+      expect(auth.getDecodedUserId()).to.equal(null);
+    });
+    it('If JWT processed on /me', (done) => {
+      const auth = new AuthHelper(
+        validToken,
+        Buffer.from(pubKey).toString('base64'),
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
+      );
+      auth.processJwt('me')
+        .then(() => {
+          expect(auth.getDecodedUserId()).to.equal(payload.userId);
+          done();
+        })
+        .catch(done);
+    });
+    it('If JWT processed on userId', (done) => {
+      const alternativeUserId = uuid();
+      const auth = new AuthHelper(
+        validPermissionsToken,
+        Buffer.from(pubKey).toString('base64'),
+        0,
+        0,
+      );
+      auth.processJwt(alternativeUserId)
+        .then((userId) => {
+          expect(userId).to.equal(alternativeUserId);
+          expect(auth.getDecodedUserId()).to.not.equal(alternativeUserId);
+          expect(auth.getDecodedUserId()).to.equal(payload.userId);
+          done();
+        })  
+        .catch(done);
     });
   });
 });

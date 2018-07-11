@@ -26,6 +26,7 @@ export default class AuthHelper {
 
     this.service = service;
     this.overrideAccessPermission = overrideAccessPermission;
+    this.decodedUserid = null;
   }
 
   /**
@@ -41,6 +42,7 @@ export default class AuthHelper {
         if (err) return reject(new ErrorCustom(err.message, 401, 1000100));
         if (decoded.permissions) this.permissions = decoded.permissions;
         if (decoded.userId) {
+          this.decodedUserid = decoded.userId;
           if (userId === 'me' || userId === decoded.userId || !userId) return resolve(decoded.userId);
           return this.userCan(this.service, this.overrideAccessPermission)
             .then((result) => {
@@ -65,5 +67,13 @@ export default class AuthHelper {
     if (!this.permissions) return Promise.resolve(false);
     return Promise.resolve(PermissionManager
       .checkPermissions(this.permissions, permissionClass, permission));
+  }
+
+  /**
+   * Retrieve the decoded userId from the JWT Token
+   * @return {string} UserId from the valid JWT
+   */
+  getDecodedUserId() {
+    return this.decodedUserid;
   }
 }
