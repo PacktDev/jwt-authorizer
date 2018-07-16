@@ -27,7 +27,11 @@
     {
       "name": "Abhishek Pal",
       "email": "abhishekp@packtpub.com"
-    }
+    },
+    {
+      "name": "Michael Copeland",
+      "email": "michael.copeland@freakout.tech"
+    },
   ],
   "license": "Apache-2.0",
   "homepage": "https://bitbucket.org/packt-internal/jwt-authorizer",
