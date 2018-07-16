@@ -5,7 +5,7 @@
 const JwtAuthorizer = require('../src/index');
 const chai = require('chai'); // eslint-disable-line
 const expect = chai.expect; // eslint-disable-line
-
+chai.use(require('chai-bytes'));
 const gPermsJson = `{
   "genin": {
     "service": 0,
@@ -354,8 +354,104 @@ describe('Permission Manager', () => {
       expect(listedPerms[2].serviceIndex).to.equal(1);
       expect(listedPerms[4].serviceName).to.equal('jonin');
       expect(listedPerms[4].serviceIndex).to.equal(2);
+    });
+  });
 
+  describe('encodeMultiplePermissions', () => {
 
+    it('returns AAAA, when JWT is constructed without permsIn', (done) => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      const encoded = test.encodeMultiplePermissions([]);
+      expect(encoded).to.equal('AAAA');
+      done();
+    });
+
+    it('returns passed in value when give only one set of params', (done) => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, 'AQ==');
+      const encoded = test.encodeMultiplePermissions(['AQ==']);
+      expect(encoded).to.equal('AQAA');
+      done();
+    });
+
+    it('returns AwIA when passed complex permissions set', (done) => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, 'AwIA');
+      const encoded = test.encodeMultiplePermissions(['AwIA']);
+      expect(encoded).to.equal('AwIA');
+      done();
+    });
+
+    it('combine [[0,1],[0,2], [1,1], [1,2]]', (done) => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, 'AwAA');
+      const encoded = test.encodeMultiplePermissions([' AwAA', 'AAMA']);
+      expect(encoded).to.equal('AwMA');
+      expect(test.checkPermission(0, 1)).to.equal(true);
+      expect(test.checkPermission(0, 2)).to.equal(true);
+      expect(test.checkPermission(0, 4)).to.equal(false);
+      expect(test.checkPermission(1, 1)).to.equal(true);
+      expect(test.checkPermission(1, 2)).to.equal(true);
+      expect(test.checkPermission(1, 4)).to.equal(false);
+      done();
+    });
+
+    it('build permission set then return valid permissions that pass check', () => {
+      const role1 = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      role1.addPermission(0, 1);
+      role1.addPermission(0, 2);
+
+      const role2 = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      role2.addPermission(1, 1);
+      role2.addPermission(2, 2);
+      const result = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      const encodeTogether = result.encodeMultiplePermissions([role1.toString(), role2.toString()]);
+      expect(encodeTogether).to.equal('AwEC');
+      expect(result.checkPermission(0, 1)).to.equal(true);
+      expect(result.checkPermission(0, 2)).to.equal(true);
+      expect(result.checkPermission(0, 4)).to.equal(false);
+      expect(result.checkPermission(1, 1)).to.equal(true);
+      expect(result.checkPermission(2, 2)).to.equal(true);
+      expect(result.checkPermission(1, 4)).to.equal(false);
+    });
+
+    it('overlapping test with permissions from alternative service', () => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      test.addPermission(2, 2);
+      const perms = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      perms.addPermission(0, 2);
+      perms.addPermission(1, 1);
+      perms.addPermission(1, 2);
+      const encodeTogether = test.encodeMultiplePermissions([test.toString(), perms.toString()]);
+      const overLapping = new JwtAuthorizer.PermissionManager(gPermsJson, encodeTogether);
+      expect(overLapping.checkPermission(0, 2)).to.equal(true);
+      expect(overLapping.checkPermission(1, 1)).to.equal(true);
+      expect(overLapping.checkPermission(1, 2)).to.equal(true);
+      expect(overLapping.checkPermission(2, 1)).to.equal(false);
+      expect(overLapping.checkPermission(2, 2)).to.equal(true);
+      const againTogether = overLapping.encodeMultiplePermissions([overLapping.toString(), test.toString()]);
+      const finalResult = new JwtAuthorizer.PermissionManager(gPermsJson, againTogether);
+      finalResult.addPermission(2, 1);
+      finalResult.removePermission(0, 2);
+      finalResult.removePermission(1, 1);
+      finalResult.removePermission(1, 2);
+      expect(finalResult.checkPermission(0, 2)).to.equal(false);
+      expect(finalResult.checkPermission(1, 1)).to.equal(false);
+      expect(finalResult.checkPermission(1, 2)).to.equal(false);
+      expect(finalResult.checkPermission(2, 1)).to.equal(true);
+      expect(finalResult.checkPermission(2, 2)).to.equal(true);
+    });
+
+    it('', (done) => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, 'AAAD');
+      test.addPermission(2, 1);
+      const test2 = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      test2.addPermission(0, 2);
+      test2.addPermission(2, 2);
+
+      const finalResult = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      const encoded = finalResult.encodeMultiplePermissions([test.toString(), test2.toString()]);
+      const checkPerms = new Uint8Array(Buffer.from(encoded, 'base64'));
+      expect(checkPerms).to.equalBytes('020003');
+      // expect(encoded).to.equal('AAAD');
+      done();
     });
   });
 });
