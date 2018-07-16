@@ -354,8 +354,26 @@ describe('Permission Manager', () => {
       expect(listedPerms[2].serviceIndex).to.equal(1);
       expect(listedPerms[4].serviceName).to.equal('jonin');
       expect(listedPerms[4].serviceIndex).to.equal(2);
+    });
+  });
 
+  describe('encodeMultiplePermissions', () => {
+    it('returns AAAA, when JWT is constructed without permsIn', () => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      const encoded = test.encodeMultiplePermissions([]);
+      expect(encoded).to.equal('AAAA');
+    });
 
+    it('returns passed in value when give only one set of params', () => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, 'AQ==');
+      const encoded = test.encodeMultiplePermissions(['AQ==']);
+      expect(encoded).to.equal('AQAA');
+    });
+
+    it('returns AwIA when passed complex permissions set', () => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, 'AQ==');
+      const encoded = test.encodeMultiplePermissions(['AwIA']);
+      expect(encoded).to.equal('AwIA');
     });
   });
 });

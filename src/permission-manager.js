@@ -130,6 +130,31 @@ export default class PermissionManager {
   }
 
   /**
+  * Encodes multiple permissions
+  *
+  * @params {Array} permArray
+  *
+  * @returns {String}
+  * Encoded permissions string
+  */
+  encodeMultiplePermissions(permArray) {
+    if (permArray.length === 0) {
+      return this.toString();
+    }
+
+    if (permArray) {
+      permArray.forEach((item) => {
+        const checkPerms = new Uint8Array(Buffer.from(item, 'base64'));
+        checkPerms.forEach((elem, index) => {
+          this.perms[index] = elem;
+        });
+      });
+    }
+
+    return this.toString();
+  }
+
+  /**
    * Checks the permission is included in the current permissions object
    * @param  {number} serviceIndex
    * @param  {number} permission
