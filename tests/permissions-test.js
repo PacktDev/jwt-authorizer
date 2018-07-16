@@ -358,6 +358,7 @@ describe('Permission Manager', () => {
   });
 
   describe('encodeMultiplePermissions', () => {
+
     it('returns AAAA, when JWT is constructed without permsIn', (done) => {
       const test = new JwtAuthorizer.PermissionManager(gPermsJson, '');
       const encoded = test.encodeMultiplePermissions([]);
@@ -409,6 +410,33 @@ describe('Permission Manager', () => {
       expect(result.checkPermission(1, 1)).to.equal(true);
       expect(result.checkPermission(2, 2)).to.equal(true);
       expect(result.checkPermission(1, 4)).to.equal(false);
+    });
+
+    it('overlapping test with permissions from alternative service', () => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      test.addPermission(2, 2);
+      const perms = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      perms.addPermission(0, 2);
+      perms.addPermission(1, 1);
+      perms.addPermission(1, 2);
+      const encodeTogether = test.encodeMultiplePermissions([test.toString(), perms.toString()]);
+      const overLapping = new JwtAuthorizer.PermissionManager(gPermsJson, encodeTogether);
+      expect(overLapping.checkPermission(0, 2)).to.equal(true);
+      expect(overLapping.checkPermission(1, 1)).to.equal(true);
+      expect(overLapping.checkPermission(1, 2)).to.equal(true);
+      expect(overLapping.checkPermission(2, 1)).to.equal(false);
+      expect(overLapping.checkPermission(2, 2)).to.equal(true);
+      const againTogether = overLapping.encodeMultiplePermissions([overLapping.toString(), test.toString()]);
+      const finalResult = new JwtAuthorizer.PermissionManager(gPermsJson, againTogether);
+      finalResult.addPermission(2, 1);
+      finalResult.removePermission(0, 2);
+      finalResult.removePermission(1, 1);
+      finalResult.removePermission(1, 2);
+      expect(finalResult.checkPermission(0, 2)).to.equal(false);
+      expect(finalResult.checkPermission(1, 1)).to.equal(false);
+      expect(finalResult.checkPermission(1, 2)).to.equal(false);
+      expect(finalResult.checkPermission(2, 1)).to.equal(true);
+      expect(finalResult.checkPermission(2, 2)).to.equal(true);
     });
   });
 });
