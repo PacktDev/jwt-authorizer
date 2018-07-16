@@ -142,7 +142,7 @@ export default class PermissionManager {
       return this.toString();
     }
 
-    if (permArray) {
+    if (Array.isArray(permArray)) {
       permArray.forEach((item) => {
         const checkPerms = new Uint8Array(Buffer.from(item, 'base64'));
         checkPerms.forEach((elem, index) => {

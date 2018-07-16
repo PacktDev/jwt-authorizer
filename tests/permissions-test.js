@@ -5,7 +5,7 @@
 const JwtAuthorizer = require('../src/index');
 const chai = require('chai'); // eslint-disable-line
 const expect = chai.expect; // eslint-disable-line
-
+chai.use(require('chai-bytes'));
 const gPermsJson = `{
   "genin": {
     "service": 0,
@@ -437,6 +437,21 @@ describe('Permission Manager', () => {
       expect(finalResult.checkPermission(1, 2)).to.equal(false);
       expect(finalResult.checkPermission(2, 1)).to.equal(true);
       expect(finalResult.checkPermission(2, 2)).to.equal(true);
+    });
+
+    it('', (done) => {
+      const test = new JwtAuthorizer.PermissionManager(gPermsJson, 'AAAD');
+      test.addPermission(2, 1);
+      const test2 = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      test2.addPermission(0, 2);
+      test2.addPermission(2, 2);
+
+      const finalResult = new JwtAuthorizer.PermissionManager(gPermsJson, '');
+      const encoded = finalResult.encodeMultiplePermissions([test.toString(), test2.toString()]);
+      const checkPerms = new Uint8Array(Buffer.from(encoded, 'base64'));
+      expect(checkPerms).to.equalBytes('020003');
+      // expect(encoded).to.equal('AAAD');
+      done();
     });
   });
 });
