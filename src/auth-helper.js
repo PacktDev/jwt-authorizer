@@ -65,10 +65,10 @@ export default class AuthHelper {
   }
 
   /**
-   * Returns the payload from the jwt. Only has value if the processJwt has
+   * Returns the payload from the JWT. Only has value if the processJwt has
    * been called. Does not include the created, expires, permissions or
    * perms properties.
-   * @returns {object} Payload from the jwt.
+   * @returns {object} Payload from the JWT.
    */
   getPayload() {
     return this.payload;
@@ -77,8 +77,8 @@ export default class AuthHelper {
   /**
    * Checks whether the user has the required permission.
    *
-   * @param {string} permissionClass The class or service.
-   * @param {string} permission The permission.
+   * @param {number} permissionClass The class or service index.
+   * @param {number} permission The permission value.
    * @returns {Promise<boolean>} Promise which resolves to true or false.
    */
   userCan(permissionClass, permission) {
