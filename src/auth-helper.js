@@ -33,6 +33,9 @@ export default class AuthHelper {
    * Validates the JWT for structure and signature.
    * @param {string} userId UserId to test against the JWT.
    * @returns {Promise<string>} Promise which resolves to the userId.
+   * UserId returned is the userId from the token if `me` or falsy is passed in.
+   * If not, the userId passed in is returned if it matches the token or the user
+   * has the override permission.
    */
   processJwt(userId) {
     return new Promise((resolve, reject) => {
@@ -65,6 +68,7 @@ export default class AuthHelper {
    * Returns the payload from the jwt. Only has value if the processJwt has
    * been called. Does not include the created, expires, permissions or
    * perms properties.
+   * @returns {object} Payload from the jwt.
    */
   getPayload() {
     return this.payload;
