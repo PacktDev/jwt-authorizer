@@ -40,7 +40,12 @@ export default class AuthHelper {
       const splitJwt = this.rawJwt.replace('Bearer ', '');
       return jwt.verify(splitJwt, this.publicKey, (err, decoded) => {
         if (err) return reject(new ErrorCustom(err.message, 401, 1000100));
-        if (decoded.permissions) this.permissions = decoded.permissions;
+        this.payload = Object.assign({}, decoded);
+        delete this.payload.iat;
+        delete this.payload.exp;
+        delete this.payload.permissions;
+        delete this.payload.perms;
+        if (decoded.perms) this.permissions = decoded.perms;
         if (decoded.userId) {
           this.decodedUserid = decoded.userId;
           if (userId === 'me' || userId === decoded.userId || !userId) return resolve(decoded.userId);
@@ -54,6 +59,15 @@ export default class AuthHelper {
         return reject(new ErrorCustom('Unable to decode for userId', 401, 1000102));
       });
     });
+  }
+
+  /**
+   * Returns the payload from the jwt. Only has value if the processJwt has
+   * been called. Does not include the created, expires, permissions or
+   * perms properties.
+   */
+  getPayload() {
+    return this.payload;
   }
 
   /**

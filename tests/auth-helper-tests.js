@@ -40,8 +40,10 @@ const payload = {
   username: 'test@mctestface.com',
 };
 
+const pm = new PermissionManager(gPermsJSON);
+pm.addPermission(1, 1);
 const validToken = `Bearer ${jwt.sign(payload, privKey, { algorithm: 'RS256' })}`;
-const validPermissionsToken = `Bearer ${jwt.sign(Object.assign(payload, { permissions: 'AA==' }), privKey, { algorithm: 'RS256' })}`;
+const validPermissionsToken = `Bearer ${jwt.sign(Object.assign(payload, { perms: pm.toString() }), privKey, { algorithm: 'RS256', expiresIn: 60 })}`;
 console.log(`[${validToken}]`);
 
 describe('Auth Helper', () => {
@@ -284,7 +286,29 @@ describe('Auth Helper', () => {
           expect(auth.getDecodedUserId()).to.not.equal(alternativeUserId);
           expect(auth.getDecodedUserId()).to.equal(payload.userId);
           done();
-        })  
+        })
+        .catch(done);
+    });
+  });
+
+  describe('getPayload tests', () => {
+    it('get valid payload', (done) => {
+      const auth = new AuthHelper(
+        validPermissionsToken,
+        Buffer.from(pubKey).toString('base64'),
+      );
+      auth.processJwt()
+        .then(() => auth.getPayload())
+        .then((jwtPayload) => {
+          expect(jwtPayload).to.be.an('object');
+          expect(jwtPayload).to.have.property('userId', '3c1b128a-8baa-41f8-98a9-67023ea545a2');
+          expect(jwtPayload).to.have.property('username', 'test@mctestface.com');
+          expect(jwtPayload).to.not.have.property('exp');
+          expect(jwtPayload).to.not.have.property('iat');
+          expect(jwtPayload).to.not.have.property('perms');
+          expect(jwtPayload).to.not.have.property('permissions');
+          done();
+        })
         .catch(done);
     });
   });
