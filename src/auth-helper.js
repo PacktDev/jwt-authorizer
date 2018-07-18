@@ -33,6 +33,9 @@ export default class AuthHelper {
    * Validates the JWT for structure and signature.
    * @param {string} userId UserId to test against the JWT.
    * @returns {Promise<string>} Promise which resolves to the userId.
+   * UserId returned is the userId from the token if `me` or falsy is passed in.
+   * If not, the userId passed in is returned if it matches the token or the user
+   * has the override permission.
    */
   processJwt(userId) {
     return new Promise((resolve, reject) => {
@@ -40,7 +43,12 @@ export default class AuthHelper {
       const splitJwt = this.rawJwt.replace('Bearer ', '');
       return jwt.verify(splitJwt, this.publicKey, (err, decoded) => {
         if (err) return reject(new ErrorCustom(err.message, 401, 1000100));
-        if (decoded.permissions) this.permissions = decoded.permissions;
+        this.payload = Object.assign({}, decoded);
+        delete this.payload.iat;
+        delete this.payload.exp;
+        delete this.payload.permissions;
+        delete this.payload.perms;
+        if (decoded.perms) this.permissions = decoded.perms;
         if (decoded.userId) {
           this.decodedUserid = decoded.userId;
           if (userId === 'me' || userId === decoded.userId || !userId) return resolve(decoded.userId);
@@ -57,10 +65,20 @@ export default class AuthHelper {
   }
 
   /**
+   * Returns the payload from the JWT. Only has value if the processJwt has
+   * been called. Does not include the created, expires, permissions or
+   * perms properties.
+   * @returns {object} Payload from the JWT.
+   */
+  getPayload() {
+    return this.payload;
+  }
+
+  /**
    * Checks whether the user has the required permission.
    *
-   * @param {string} permissionClass The class or service.
-   * @param {string} permission The permission.
+   * @param {number} permissionClass The class or service index.
+   * @param {number} permission The permission value.
    * @returns {Promise<boolean>} Promise which resolves to true or false.
    */
   userCan(permissionClass, permission) {
