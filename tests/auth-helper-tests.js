@@ -289,6 +289,29 @@ describe('Auth Helper', () => {
         })
         .catch(done);
     });
+
+    it('Mismatching userId', (done) => {
+      const alternativeUserId = uuid();
+      const auth = new AuthHelper(
+        validPermissionsToken,
+        Buffer.from(pubKey).toString('base64'),
+        0,
+        0,
+      );
+      const fakePerm = sinon.stub(auth, 'userCan').resolves(null);
+
+      auth.processJwt('invalid token')
+        .then((userId) => {
+          expect(userId).to.be.instanceof(Error);
+        })
+        .catch((error) => {
+          expect(error.message).to.equal('Mismatching userId');
+          expect(error.statusCode).to.equal(403);
+          expect(error.errorCode).to.equal(1000101);
+          done();
+        });
+    });
+
   });
 
   describe('getPayload tests', () => {
