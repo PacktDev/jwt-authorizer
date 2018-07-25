@@ -52,6 +52,7 @@ export default class AuthHelper {
         if (decoded.userId) {
           this.decodedUserid = decoded.userId;
           if (userId === 'me' || userId === decoded.userId || !userId) return resolve(decoded.userId);
+          if (this.overrideAccessPermission === undefined) return reject(new ErrorCustom('Mismatching userId', 403, 1000101));
           return this.userCan(this.service, this.overrideAccessPermission)
             .then((result) => {
               if (result) return resolve(userId);
