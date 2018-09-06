@@ -37,12 +37,17 @@ export default class AuthHelper {
    * If not, the userId passed in is returned if it matches the token or the user
    * has the override permission.
    */
-  processJwt(userId) {
+  processJwt(userId, ignore = false) {
     return new Promise((resolve, reject) => {
       if (!(/^Bearer [a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+?$/.test(this.rawJwt))) return reject(new ErrorCustom('Malformed JWT passed in', 400, 1000113));
       const splitJwt = this.rawJwt.replace('Bearer ', '');
       return jwt.verify(splitJwt, this.publicKey, (err, decoded) => {
-        if (err) return reject(new ErrorCustom(err.message, 401, 1000100));
+        if (err) {
+          if (!(ignore && error.message === 'jwt expired')) {
+            return reject(new ErrorCustom(err.message, 401, 1000100));
+          }
+        }
+
         this.payload = Object.assign({}, decoded);
         delete this.payload.iat;
         delete this.payload.exp;

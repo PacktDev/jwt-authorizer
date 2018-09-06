@@ -116,6 +116,20 @@ describe('Auth Helper', () => {
       auth.processJwt();
       expect(auth.userCan(gPerms.genin.service, 2)).to.eventually.equal(false);
     });
+
+    it('Expired JWT resolves when ignore is true', (done) => {
+      const auth = new AuthHelper(
+        validToken,
+        pubKey,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
+      );
+      sinon.stub(jwt, 'verify').returns(Error('jwt expired'))
+
+      expect(auth.processJwt('me', true)).to.eventually.equal(payload.userId);
+      jwt.verify.restore();
+      done();
+    });
   });
 
   describe('Invalid JWT', () => {
@@ -187,7 +201,7 @@ describe('Auth Helper', () => {
         gPerms.genin.service,
         gPerms.genin.canMasquerade,
       );
-      auth.processJwt('doobie')
+      auth.processJwt('doobie', true)
         .then(() => {
           expect(0).to.equal('fail happy path');
           done();
@@ -312,6 +326,27 @@ describe('Auth Helper', () => {
         });
     });
 
+    it('fails when ignore is true and not expire', (done) => {
+      const alternativeUserId = uuid();
+      const auth = new AuthHelper(
+        validPermissionsToken,
+        Buffer.from(pubKey).toString('base64'),
+        0,
+        0,
+      );
+      const fakePerm = sinon.stub(auth, 'userCan').resolves(null);
+
+      auth.processJwt('invalid token', true)
+        .then((userId) => {
+          expect(userId).to.be.instanceof(Error);
+        })
+        .catch((error) => {
+          expect(error.message).to.equal('Mismatching userId');
+          expect(error.statusCode).to.equal(403);
+          expect(error.errorCode).to.equal(1000101);
+          done();
+        });
+    });
   });
 
   describe('getPayload tests', () => {
