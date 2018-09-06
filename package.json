@@ -1,6 +1,6 @@
 {
   "name": "@packt/jwt-authorizer",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Module to manage JWT claims-based authentication with permissions.",
   "main": "dist/index.js",
   "scripts": {
@@ -59,6 +59,7 @@
   "dependencies": {
     "@packt/error-custom": "0.1.2",
     "joi": "13.4.0",
-    "jsonwebtoken": "8.3.0"
+    "jsonwebtoken": "8.3.0",
+    "jwt-decode": "2.2.0"
   }
 }

@@ -119,6 +119,27 @@ describe('Auth Helper', () => {
   });
 
   describe('Invalid JWT', () => {
+    it('Expired JWT return payload on error, when passed returnPayload flag', async () => {
+      var token = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhNzNiNTgyOC0yNDg0LTQ0ZDgtYmJjNi1kYjc1NTBjZTAxZTEiLCJ1c2VybmFtZSI6ImFzZGFzZmFzQGFzZGFmYS5jb20iLCJwZXJtaXNzaW9ucyI6W10sInN1YnNjcmlwdGlvbiI6W10sInBlcm1zIjpbXSwiaWF0IjoxNTM2MTYwMzEwLCJleHAiOjE1MzYxNjM5MTB9.tAnrJ3FnjT02Ahl2FPHwG2DTvJ84erDFqIM2G6NW5bfz0aBRHRfohr0TzK_NdcbHTxnTyBZHrh1FCNxs5pio8YmYFYkzGlGCmKM9BQHTZ3qAeAdDhvmTKUeyTFbWr5CPEXFRkx2kKOGj0OuLkxWz_dqZI8O_2YQsXB_1nlnekX4';
+
+      const auth = new AuthHelper(
+        token,
+        pubKey,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
+      );
+      await auth.processJwt('me', true)
+        .then(() => {
+          expect(0).to.equal('fail happy path');
+        })
+        .catch((error) => {
+          expect(auth.payload).to.be.instanceof(Object);
+          expect(error.message).to.equal('invalid signature');
+          expect(error.errorCode).to.equal(1000100);
+          expect(error.statusCode).to.equal(401);
+        })
+    });
+
     it('Invalid JWT format throws error', (done) => {
       const auth = new AuthHelper(
         `${validToken} invalidation string`,
@@ -187,7 +208,7 @@ describe('Auth Helper', () => {
         gPerms.genin.service,
         gPerms.genin.canMasquerade,
       );
-      auth.processJwt('doobie')
+      auth.processJwt('doobie', false)
         .then(() => {
           expect(0).to.equal('fail happy path');
           done();
@@ -205,7 +226,7 @@ describe('Auth Helper', () => {
         validToken,
         pubKey,
       );
-      auth.processJwt('doobie')
+      auth.processJwt('doobie', true)
         .then(() => {
           expect(0).to.equal('fail happy path');
           done();
@@ -217,6 +238,7 @@ describe('Auth Helper', () => {
           done();
         });
     });
+
   });
 
   describe('Constructor tests', () => {
@@ -312,6 +334,27 @@ describe('Auth Helper', () => {
         });
     });
 
+    it('fails when ignore is true and not expire', (done) => {
+      const alternativeUserId = uuid();
+      const auth = new AuthHelper(
+        validPermissionsToken,
+        Buffer.from(pubKey).toString('base64'),
+        0,
+        0,
+      );
+      const fakePerm = sinon.stub(auth, 'userCan').resolves(null);
+
+      auth.processJwt('invalid token', true)
+        .then((userId) => {
+          expect(userId).to.be.instanceof(Error);
+        })
+        .catch((error) => {
+          expect(error.message).to.equal('Mismatching userId');
+          expect(error.statusCode).to.equal(403);
+          expect(error.errorCode).to.equal(1000101);
+          done();
+        });
+    });
   });
 
   describe('getPayload tests', () => {

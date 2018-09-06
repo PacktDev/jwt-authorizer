@@ -83,6 +83,7 @@ Instantiates the helper object with raw information needed.
 
 Validates the JWT for structure and signature.
    * @param {string} userId UserId to test against the JWT. Allows me to delegate `userId` to JWT, when a different `userId` is provided then a permission check is made using the `service` and `overrideAccesspermission` specified in the constructor.
+   * @param {boolean} returnPayload. default to false. Sets payload after error when set to true
    * @returns {Promise<string>} Promise which resolves to the userId.
 
 `userCan(permissionClass, permission)`
