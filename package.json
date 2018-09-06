@@ -1,6 +1,6 @@
 {
   "name": "@packt/jwt-authorizer",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "description": "Module to manage JWT claims-based authentication with permissions.",
   "main": "dist/index.js",
   "scripts": {
