@@ -43,7 +43,7 @@ export default class AuthHelper {
       const splitJwt = this.rawJwt.replace('Bearer ', '');
       return jwt.verify(splitJwt, this.publicKey, (err, decoded) => {
         if (err) {
-          if (!(ignore && error.message === 'jwt expired')) {
+          if (!(ignore && err.message === 'jwt expired')) {
             return reject(new ErrorCustom(err.message, 401, 1000100));
           }
         }
