@@ -43,6 +43,7 @@ const payload = {
 const pm = new PermissionManager(gPermsJSON);
 pm.addPermission(1, 1);
 const validToken = `Bearer ${jwt.sign(payload, privKey, { algorithm: 'RS256' })}`;
+const validShortToken = `Bearer ${jwt.sign(payload, privKey, { algorithm: 'RS256', expiresIn: '10' })}`;
 const validPermissionsToken = `Bearer ${jwt.sign(Object.assign(payload, { perms: pm.toString() }), privKey, { algorithm: 'RS256', expiresIn: 60 })}`;
 console.log(`[${validToken}]`);
 
@@ -120,24 +121,37 @@ describe('Auth Helper', () => {
 
   describe('Invalid JWT', () => {
     it('Expired JWT return payload on error, when passed returnPayload flag', async () => {
-      var token = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhNzNiNTgyOC0yNDg0LTQ0ZDgtYmJjNi1kYjc1NTBjZTAxZTEiLCJ1c2VybmFtZSI6ImFzZGFzZmFzQGFzZGFmYS5jb20iLCJwZXJtaXNzaW9ucyI6W10sInN1YnNjcmlwdGlvbiI6W10sInBlcm1zIjpbXSwiaWF0IjoxNTM2MTYwMzEwLCJleHAiOjE1MzYxNjM5MTB9.tAnrJ3FnjT02Ahl2FPHwG2DTvJ84erDFqIM2G6NW5bfz0aBRHRfohr0TzK_NdcbHTxnTyBZHrh1FCNxs5pio8YmYFYkzGlGCmKM9BQHTZ3qAeAdDhvmTKUeyTFbWr5CPEXFRkx2kKOGj0OuLkxWz_dqZI8O_2YQsXB_1nlnekX4';
-
       const auth = new AuthHelper(
-        token,
+        validShortToken,
         pubKey,
         gPerms.genin.service,
         gPerms.genin.canMasquerade,
       );
       await auth.processJwt('me', true)
         .then(() => {
+          expect(auth.getDecodedUserId()).to.equal(payload.userId);
+          expect(auth.getPayload().username).to.equal(payload.username);
+        });
+    });
+
+    it('Invalid JWT throw error, when passed returnPayload flag', (done) => {
+      const auth = new AuthHelper(
+        `${validToken} invalidation string`,
+        pubKey,
+        gPerms.genin.service,
+        gPerms.genin.canMasquerade,
+      );
+      auth.processJwt('me', true)
+        .then(() => {
           expect(0).to.equal('fail happy path');
+          done();
         })
         .catch((error) => {
-          expect(auth.payload).to.be.instanceof(Object);
-          expect(error.message).to.equal('invalid signature');
-          expect(error.errorCode).to.equal(1000100);
-          expect(error.statusCode).to.equal(401);
-        })
+          expect(error.message).to.equal('Malformed JWT passed in');
+          expect(error.errorCode).to.equal(1000113);
+          expect(error.statusCode).to.equal(400);
+          done();
+        });
     });
 
     it('Invalid JWT format throws error', (done) => {

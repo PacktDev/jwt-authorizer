@@ -33,6 +33,7 @@ export default class AuthHelper {
   /**
    * Validates the JWT for structure and signature.
    * @param {string} userId UserId to test against the JWT.
+   * @param {string} returnPayload Override to allow processing of an expired token.
    * @returns {Promise<string>} Promise which resolves to the userId.
    * UserId returned is the userId from the token if `me` or falsy is passed in.
    * If not, the userId passed in is returned if it matches the token or the user
@@ -44,12 +45,11 @@ export default class AuthHelper {
       const splitJwt = this.rawJwt.replace('Bearer ', '');
       return jwt.verify(splitJwt, this.publicKey, (err, decoded) => {
         if (err) {
-          if (returnPayload) {
-            const info = decoder(splitJwt);
-            this.payload = Object.assign({}, info);
+          if (returnPayload && err.message === 'jwt expired') {
+            decoded = decoder(splitJwt); // eslint-disable-line
+          } else {
+            return reject(new ErrorCustom(err.message, 401, 1000100));
           }
-
-          return reject(new ErrorCustom(err.message, 401, 1000100));
         }
 
         this.payload = Object.assign({}, decoded);
