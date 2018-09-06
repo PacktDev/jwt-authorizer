@@ -116,23 +116,30 @@ describe('Auth Helper', () => {
       auth.processJwt();
       expect(auth.userCan(gPerms.genin.service, 2)).to.eventually.equal(false);
     });
+  });
 
-    it('Expired JWT resolves when ignore is true', (done) => {
+  describe('Invalid JWT', () => {
+    it('Expired JWT return payload on error, when passed returnPayload flag', async () => {
+      var token = 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhNzNiNTgyOC0yNDg0LTQ0ZDgtYmJjNi1kYjc1NTBjZTAxZTEiLCJ1c2VybmFtZSI6ImFzZGFzZmFzQGFzZGFmYS5jb20iLCJwZXJtaXNzaW9ucyI6W10sInN1YnNjcmlwdGlvbiI6W10sInBlcm1zIjpbXSwiaWF0IjoxNTM2MTYwMzEwLCJleHAiOjE1MzYxNjM5MTB9.tAnrJ3FnjT02Ahl2FPHwG2DTvJ84erDFqIM2G6NW5bfz0aBRHRfohr0TzK_NdcbHTxnTyBZHrh1FCNxs5pio8YmYFYkzGlGCmKM9BQHTZ3qAeAdDhvmTKUeyTFbWr5CPEXFRkx2kKOGj0OuLkxWz_dqZI8O_2YQsXB_1nlnekX4';
+
       const auth = new AuthHelper(
-        validToken,
+        token,
         pubKey,
         gPerms.genin.service,
         gPerms.genin.canMasquerade,
       );
-      sinon.stub(jwt, 'verify').returns(Error('jwt expired'))
-
-      expect(auth.processJwt('me', true)).to.eventually.equal(payload.userId);
-      jwt.verify.restore();
-      done();
+      await auth.processJwt('me', true)
+        .then(() => {
+          expect(0).to.equal('fail happy path');
+        })
+        .catch((error) => {
+          expect(auth.payload).to.be.instanceof(Object);
+          expect(error.message).to.equal('invalid signature');
+          expect(error.errorCode).to.equal(1000100);
+          expect(error.statusCode).to.equal(401);
+        })
     });
-  });
 
-  describe('Invalid JWT', () => {
     it('Invalid JWT format throws error', (done) => {
       const auth = new AuthHelper(
         `${validToken} invalidation string`,
@@ -201,7 +208,7 @@ describe('Auth Helper', () => {
         gPerms.genin.service,
         gPerms.genin.canMasquerade,
       );
-      auth.processJwt('doobie', true)
+      auth.processJwt('doobie', false)
         .then(() => {
           expect(0).to.equal('fail happy path');
           done();
@@ -219,7 +226,7 @@ describe('Auth Helper', () => {
         validToken,
         pubKey,
       );
-      auth.processJwt('doobie')
+      auth.processJwt('doobie', true)
         .then(() => {
           expect(0).to.equal('fail happy path');
           done();
@@ -231,6 +238,7 @@ describe('Auth Helper', () => {
           done();
         });
     });
+
   });
 
   describe('Constructor tests', () => {

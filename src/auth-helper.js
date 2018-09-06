@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import ErrorCustom from '@packt/error-custom';
+import decoder from 'jwt-decode';
 
 import PermissionManager from './permission-manager';
 
@@ -37,15 +38,18 @@ export default class AuthHelper {
    * If not, the userId passed in is returned if it matches the token or the user
    * has the override permission.
    */
-  processJwt(userId, ignore = false) {
+  processJwt(userId, returnPayload = false) {
     return new Promise((resolve, reject) => {
       if (!(/^Bearer [a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+?$/.test(this.rawJwt))) return reject(new ErrorCustom('Malformed JWT passed in', 400, 1000113));
       const splitJwt = this.rawJwt.replace('Bearer ', '');
       return jwt.verify(splitJwt, this.publicKey, (err, decoded) => {
         if (err) {
-          if (!(ignore && err.message === 'jwt expired')) {
-            return reject(new ErrorCustom(err.message, 401, 1000100));
+          if (returnPayload) {
+            const info = decoder(splitJwt);
+            this.payload = Object.assign({}, info);
           }
+
+          return reject(new ErrorCustom(err.message, 401, 1000100));
         }
 
         this.payload = Object.assign({}, decoded);

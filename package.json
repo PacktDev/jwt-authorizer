@@ -59,6 +59,7 @@
   "dependencies": {
     "@packt/error-custom": "0.1.2",
     "joi": "13.4.0",
-    "jsonwebtoken": "8.3.0"
+    "jsonwebtoken": "8.3.0",
+    "jwt-decode": "2.2.0"
   }
 }
