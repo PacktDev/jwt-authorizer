@@ -87,7 +87,7 @@ export default class PermissionManager {
   /**
    * Returns an array of permissions set for the current object
    *
-   * @params {string} type
+   * @param {string} type
    * Sets type of what is returned
    *
    * @returns {object} Array of strings in the form [service].[permission]
@@ -133,7 +133,7 @@ export default class PermissionManager {
   /**
   * Encodes multiple permissions
   *
-  * @params {Array} permArray
+  * @param {Array} permArray
   *
   * @returns {String}
   * Encoded permissions string
