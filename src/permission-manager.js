@@ -1,6 +1,6 @@
 /* eslint no-bitwise: "off" */
 import ErrorCustom from '@packt/error-custom';
-import Joi from 'joi';
+import Joi from '@hapi/joi';
 import jsonVerify from './json-verify';
 
 export default class PermissionManager {
@@ -74,6 +74,7 @@ export default class PermissionManager {
 
     this.perms[serviceIndex] &= ~perm;
   }
+
   /**
    * Returns a base64 version of the permissions array to be stored in a JWT
    *

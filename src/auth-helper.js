@@ -52,7 +52,7 @@ export default class AuthHelper {
           }
         }
 
-        this.payload = Object.assign({}, decoded);
+        this.payload = { ...decoded };
         delete this.payload.iat;
         delete this.payload.exp;
         delete this.payload.permissions;
