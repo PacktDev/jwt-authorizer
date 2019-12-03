@@ -15,7 +15,7 @@ const VerifyJson = (gPerms) => {
         throw new ErrorCustom(`Service [${key}] has an index greater than the number of services`, 500, 1000104);
       }
 
-      if (services.find(eachService => eachService === serviceNum)) {
+      if (services.find((eachService) => eachService === serviceNum)) {
         throw new ErrorCustom(`Service index [${serviceNum}] exists twice (extra time in [${key}])`, 500, 1000105);
       } else {
         services.push(serviceNum);
@@ -30,7 +30,7 @@ const VerifyJson = (gPerms) => {
             throw new Error(`Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] is not Base2`, 500, 1000106);
           }
 
-          if (numbers.find(number => number === value)) {
+          if (numbers.find((number) => number === value)) {
             throw new Error(`Value [${value}] of Key [${permissionKey}] in Service [${serviceNum}] exists twice`, 500, 1000107);
           } else {
             numbers.push(value);
