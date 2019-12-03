@@ -1,21 +1,75 @@
-version: 2
+version: 2.1
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:10
+    - image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+      environment:
+      - discovery.type=single-node
+
 jobs:
   build:
-    docker:
-      - image: circleci/node:8.10
+    <<: *defaults
     steps:
+      - run: sudo npm i -g npm
       - checkout
+
       - restore_cache:
           keys:
-          - dependency-cache-{{ checksum "package.json" }}
-          - dependency-cache-
-      - run:
-          name: Install local dependencies
-          command: npm install
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+
+      - run: npm install
+
       - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
+  test:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/repo
       - run:
-          name: Test
+          name: Run tests
           command: npm test
+      - store_artifacts:
+          path: ./coverage/
+
+  deploy:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+
+workflows:
+  version: 2
+  test-deploy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - hold-prod-release:
+          type: approval
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - hold-prod-release
+          filters:
+            tags:
+              only: /[0-9]+\.[0-9]+\.[0-9]+/%

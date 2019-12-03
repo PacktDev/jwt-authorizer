@@ -69,3 +69,6 @@ serverless.env.yml
 
 version.json
 sequelize-config.json
+
+# Built assets
+dist/
